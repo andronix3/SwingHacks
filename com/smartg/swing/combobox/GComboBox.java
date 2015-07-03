@@ -12,6 +12,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import com.smartg.swing.combobox.GComboBoxEditor;
+import com.smartg.swing.combobox.SingleValueComboBoxModel;
+
 public class GComboBox<E> extends JComboBox<E> {
 
     private static final long serialVersionUID = 4815623694250096742L;

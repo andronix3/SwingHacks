@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -193,9 +194,22 @@ public class JRangeSlider extends JPanel {
     }
 
     public void setValue(int i) {
+	i = clamp(i);
 	int v = model.getValue();
 	int e = model.getExtent();
 	model.setRangeProperties(i, v + e - i, model.getMinimum(), model.getMaximum(), false);
+    }
+
+    private int clamp(int i) {
+	int max = model.getMaximum();
+	if (i > max) {
+	    i = max;
+	}
+	int min = model.getMinimum();
+	if (i < min) {
+	    i = min;
+	}
+	return i;
     }
 
     public int getSecondValue() {
@@ -203,6 +217,8 @@ public class JRangeSlider extends JPanel {
     }
 
     public void setSecondValue(int i) {
+	i = clamp(i);
+
 	int v = model.getValue();
 	model.setExtent(i - v);
     }
@@ -221,11 +237,32 @@ public class JRangeSlider extends JPanel {
 	super.paintComponent(g);
 
 	slider.setBounds(getBounds());
-	slider.setValue(model.getValue() + model.getExtent());
+	
+	slider.setValue(0);
 	BasicSliderUI ui = (BasicSliderUI) slider.getUI();
+	if(getPaintTrack()) {
+	    ui.paintTrack(g);
+	}
+
+	slider.setValue(model.getValue() + model.getExtent());
+
+	Rectangle clip = g.getClipBounds();
+
+	if (getOrientation() == SwingConstants.HORIZONTAL) {
+	    g.setClip((int) (model.getValue() / scaleX), 0, getWidth(), getHeight());
+	}
 
 	slider.paint(g);
 
+	g.setClip(clip.x, clip.y, clip.width, clip.height);
+	
+	if(getPaintLabels()) {
+	    ui.paintLabels(g);
+	}
+	if(getPaintTicks()) {
+	    ui.paintTicks(g);
+	}
+	
 	slider.setValue(model.getValue());
 	ui.paintThumb(g);
     }
@@ -256,9 +293,6 @@ public class JRangeSlider extends JPanel {
 
     // all following methods just forwarding calls to/from JSlider
 
-    /**
-     * @See javax.swing.JLabel#getLabelTable() getLabelTable()
-     */
     @SuppressWarnings("rawtypes")
     public Dictionary getLabelTable() {
 	return slider.getLabelTable();
