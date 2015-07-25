@@ -15,10 +15,12 @@ public class CardSelector extends GComboBox2D_DataEditor<String> {
 	String[] cards = new String[w * w];
 	for (int y = 0; y < w; y++) {
 	    for (int x = 0; x < w; x++) {
-		if (x >= y) {
-		    cards[x + y * w] = labels[y] + labels[x];
-		} else {
+		if (x > y) {
+		    cards[x + y * w] = labels[y] + labels[x] + "o";
+		} else if (x < y) {
 		    cards[x + y * w] = labels[x] + labels[y] + "s";
+		} else {
+		    cards[x + y * w] = labels[x] + labels[y];
 		}
 	    }
 	}
@@ -89,6 +91,6 @@ public class CardSelector extends GComboBox2D_DataEditor<String> {
 	frame.add(new GComboBox<String>(new CardSelector()));
 	frame.pack();
 	frame.setVisible(true);
-	
+
     }
 }

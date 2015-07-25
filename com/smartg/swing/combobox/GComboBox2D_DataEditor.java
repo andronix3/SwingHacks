@@ -43,7 +43,7 @@ public class GComboBox2D_DataEditor<E> extends GComboBoxEditor<E> {
 	private static final long serialVersionUID = -2211273314619791045L;
 	protected JList<String> hlist;
 	protected JList<String> vlist;
-	private int cellSize = 25;
+	private int cellSize = 26;
 
 	public GDataPanel_2D(String[] hlabels, String[] vlabels, ComboBoxModel<E> data) {
 	    setLayout(new BCLayout());
