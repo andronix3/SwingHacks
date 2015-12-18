@@ -428,6 +428,8 @@ public class JRangeSlider extends JPanel {
     public void setMaximum(int maximum) {
 	model.setMaximum(maximum);
 	slider.setMaximum(maximum);
+	computeScaleX();
+	computeScaleY();
     }
 
     public int getMinimum() {
@@ -437,6 +439,8 @@ public class JRangeSlider extends JPanel {
     public void setMinimum(int minimum) {
 	model.setMinimum(minimum);
 	slider.setMinimum(minimum);
+	computeScaleX();
+	computeScaleY();
     }
 
     public BoundedRangeModel getModel() {
@@ -447,6 +451,8 @@ public class JRangeSlider extends JPanel {
 	this.model = newModel;
 	slider.setMinimum(model.getMinimum());
 	slider.setMaximum(model.getMaximum());
+	computeScaleX();
+	computeScaleY();
     }
 
     public ChangeListener[] getChangeListeners() {
