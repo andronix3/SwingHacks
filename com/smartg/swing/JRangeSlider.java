@@ -63,9 +63,9 @@ public class JRangeSlider extends JPanel {
 	    int x = e.getX();
 	    int y = e.getY();
 	    boolean horizontal = (slider.getOrientation() == SwingConstants.HORIZONTAL);
-	    if (upperThumbRect.contains(x,y)) {
+	    if (extentThumbRect.contains(x,y)) {
 		cursorType = horizontal ? Cursor.E_RESIZE_CURSOR : Cursor.N_RESIZE_CURSOR;
-	    } else if (lowerThumbRect.contains(x,y)) {
+	    } else if (thumbRect.contains(x,y)) {
 		cursorType = horizontal ? Cursor.W_RESIZE_CURSOR : Cursor.S_RESIZE_CURSOR;
 	    } else if (middleRect.contains(x,y)) {
 		cursorType = Cursor.MOVE_CURSOR;
@@ -151,7 +151,7 @@ public class JRangeSlider extends JPanel {
 
     private MouseHandler mouseHandler = new MouseHandler();
     private float scaleX, scaleY;
-    private Rectangle lowerThumbRect, middleRect, upperThumbRect;
+    private Rectangle thumbRect, middleRect, extentThumbRect;
 
     private JSlider slider = new JSlider();
 
@@ -244,7 +244,7 @@ public class JRangeSlider extends JPanel {
 	}
 
 	slider.setValue(model.getValue() + model.getExtent());
-	upperThumbRect = ui.getThumbRect();
+	extentThumbRect = ui.getThumbRect();
 
 	Rectangle clip = g.getClipBounds();
 
@@ -264,16 +264,17 @@ public class JRangeSlider extends JPanel {
 	}
 	
 	slider.setValue(model.getValue());
-	lowerThumbRect = ui.getThumbRect();
+	thumbRect = ui.getThumbRect();
 	ui.paintThumb(g);
 
-	middleRect = new Rectangle(lowerThumbRect);
 	switch (slider.getOrientation()) {
 	    case SwingConstants.HORIZONTAL:
-		middleRect.width = upperThumbRect.x - lowerThumbRect.x;
+		middleRect = new Rectangle(thumbRect);
+		middleRect.width = extentThumbRect.x - thumbRect.x;
 		break;
 	    case SwingConstants.VERTICAL:
-		middleRect.height = upperThumbRect.y - lowerThumbRect.y;
+		middleRect = new Rectangle(extentThumbRect);
+		middleRect.height = thumbRect.y - extentThumbRect.y;
 		break;
 	}
     }
