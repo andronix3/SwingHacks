@@ -158,6 +158,8 @@ public class JRangeSlider extends JPanel {
     public JRangeSlider() {
 	this(0, 100, 0, 10);
     }
+    
+    private RangeSliderUI ui;
 
     public JRangeSlider(int min, int max, int value, int extent) {
 	model.setMinimum(min);
@@ -165,7 +167,10 @@ public class JRangeSlider extends JPanel {
 	model.setValue(value);
 	model.setExtent(extent);
 
-	slider.setUI(new RangeSliderUI(slider));
+//	slider.setUI(new RangeSliderUI(slider));
+	ui = new RangeSliderUI(slider);
+	ui.installUI(slider);
+	
 	slider.setMinimum(min);
 	slider.setMaximum(max);
 
@@ -238,13 +243,13 @@ public class JRangeSlider extends JPanel {
 	slider.setBounds(getBounds());
 	
 	slider.setValue(0);
-	RangeSliderUI ui = (RangeSliderUI) slider.getUI();
+	BasicSliderUI ui = (BasicSliderUI) slider.getUI();
 	if(getPaintTrack()) {
 	    ui.paintTrack(g);
 	}
 
 	slider.setValue(model.getValue() + model.getExtent());
-	extentThumbRect = ui.getThumbRect();
+	extentThumbRect = this.ui.getThumbRect();
 
 	Rectangle clip = g.getClipBounds();
 
@@ -264,7 +269,7 @@ public class JRangeSlider extends JPanel {
 	}
 	
 	slider.setValue(model.getValue());
-	thumbRect = ui.getThumbRect();
+	thumbRect = this.ui.getThumbRect();
 	ui.paintThumb(g);
 
 	switch (slider.getOrientation()) {
