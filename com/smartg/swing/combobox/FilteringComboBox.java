@@ -27,37 +27,19 @@ import javax.swing.UIManager;
  */
 public class FilteringComboBox<E> extends JComboBox<E> {
 
-	private final class KeyHandler extends KeyAdapter {
-	private String value = "";
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			int keyCode = e.getKeyCode();
-			if (keyCode == KeyEvent.VK_ENTER) {
-				
-				Object selectedItem = getSelectedItem();
-				if (selectedItem != null) {
-					String entry = selectedItem.toString();
-					fireActionEvent(new ActionEvent(FilteringComboBox.this, ActionEvent.ACTION_PERFORMED, entry));
-				}
-				return;
-			}
-			JTextField editor = (JTextField) getEditor().getEditorComponent();
-			String text = editor.getText();
-			if (text.equalsIgnoreCase(value)) {
-				return;
-			}
-			value = text;
-			filterValues(text);
-			setPopupVisible(true);
-			((JTextField) getEditor().getEditorComponent()).setText(text);
-		}
-	}
-
 	private static final long serialVersionUID = -8403430376204294634L;
 
 	private boolean ignoreAction;
+
+	/**
+	 * We have to intercept ActionEvents, so we make our own list.
+	 */
 	private ArrayList<ActionListener> actionListeners = new ArrayList<>();
+
+	/**
+	 * This model contains all elements, the original model - only filtered
+	 * elements.
+	 */
 	private DefaultComboBoxModel<E> model;
 
 	public FilteringComboBox() {
@@ -81,15 +63,8 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 		}
 		setEditable(true);
 		UIManager.put("ComboBox.noActionOnKeyNavigation", true);
-		super.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (!ignoreAction) {
-					fireActionEvent(e);
-				}
-			}
-		});
+		super.addActionListener(new ActionHandler());
 		getEditor().getEditorComponent().addKeyListener(new KeyHandler());
 	}
 
@@ -118,6 +93,9 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public void addItem(E item) {
 		super.addItem(item);
@@ -156,6 +134,49 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 			}
 		}
 		ignoreAction = false;
+	}
+
+	/**
+	 * During the original ComboBoxModel is filled with values, JComboBox fires
+	 * ActionEvents, which we intercept here.
+	 * 
+	 * @author andro
+	 *
+	 */
+	private final class ActionHandler implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (!ignoreAction) {
+				fireActionEvent(e);
+			}
+		}
+	}
+
+	private final class KeyHandler extends KeyAdapter {
+		private String value = "";
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			int keyCode = e.getKeyCode();
+			if (keyCode == KeyEvent.VK_ENTER) {
+
+				Object selectedItem = getSelectedItem();
+				if (selectedItem != null) {
+					String entry = selectedItem.toString();
+					fireActionEvent(new ActionEvent(FilteringComboBox.this, ActionEvent.ACTION_PERFORMED, entry));
+				}
+				return;
+			}
+			JTextField editor = (JTextField) getEditor().getEditorComponent();
+			String text = editor.getText();
+			if (text.equalsIgnoreCase(value)) {
+				return;
+			}
+			value = text;
+			filterValues(text);
+			setPopupVisible(true);
+			((JTextField) getEditor().getEditorComponent()).setText(text);
+		}
 	}
 
 	public static void main(String[] args) {
