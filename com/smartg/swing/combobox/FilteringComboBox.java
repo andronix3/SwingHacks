@@ -28,11 +28,13 @@ import javax.swing.UIManager;
 public class FilteringComboBox<E> extends JComboBox<E> {
 
 	private final class KeyHandler extends KeyAdapter {
-		private String value = "";
+	private String value = "";
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			int keyCode = e.getKeyCode();
+			if (keyCode == KeyEvent.VK_ENTER) {
+				
 				Object selectedItem = getSelectedItem();
 				if (selectedItem != null) {
 					String entry = selectedItem.toString();
@@ -47,8 +49,8 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 			}
 			value = text;
 			filterValues(text);
-	        setPopupVisible(true);
-	        ((JTextField) getEditor().getEditorComponent()).setText(text);
+			setPopupVisible(true);
+			((JTextField) getEditor().getEditorComponent()).setText(text);
 		}
 	}
 
@@ -89,7 +91,13 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 			}
 		});
 		getEditor().getEditorComponent().addKeyListener(new KeyHandler());
+	}
 
+	@Override
+	public void setSelectedItem(Object anObject) {
+		if (!isPopupVisible()) {
+			super.setSelectedItem(anObject);
+		}
 	}
 
 	@Override
@@ -161,7 +169,7 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 				"OrderItem", "ActionSequence", "ContactAction", "Ticket", "TicketStage", "TicketType", "DataFormTab",
 				"DataFormGroup", "DataFormField", "Expense", "LeadSourceExpense", "LeadSourceRecurringExpense",
 				"FileBox", "SavedFilter", };
-		
+
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		FilteringComboBox<String> comboBox = new FilteringComboBox<>(values);
