@@ -28,7 +28,7 @@ public class JGroup {
     private static final String groupsKey = "GroupsList";
 
     public JGroup(JComponent parent, String name) {
-	this(parent, name, false);
+	this(parent, name, true);
     }
 
     public JGroup(JComponent parent, String name, boolean interactiveSeparator) {

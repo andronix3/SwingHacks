@@ -19,7 +19,7 @@ import javax.swing.UIManager;
  */
 public class GSeparator extends JSeparator {
 
-    SeparatorMouseHandler mouseHandler = new SeparatorMouseHandler();
+    private SeparatorMouseHandler mouseHandler = new SeparatorMouseHandler();
 
     private final class SeparatorMouseHandler extends MouseAdapter {
 	@Override

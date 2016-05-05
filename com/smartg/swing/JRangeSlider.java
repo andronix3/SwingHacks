@@ -40,18 +40,6 @@ import com.smartg.java.util.EventListenerListIterator;
  */
 public class JRangeSlider extends JPanel {
 
-    // used to get access to protected goodies
-
-    private final class RangeSliderUI extends BasicSliderUI {
-	public RangeSliderUI(JSlider slider) {
-	   super(slider);
-	}
-	Rectangle getThumbRect() {
-	    calculateThumbLocation();
-	    return new Rectangle(this.thumbRect);
-	}
-    }
-
     private final class MouseHandler extends MouseAdapter {
 	private int cursorType;
 	private int pressX, pressY;
@@ -60,19 +48,34 @@ public class JRangeSlider extends JPanel {
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-	    int x = e.getX();
-	    int y = e.getY();
-	    boolean horizontal = (slider.getOrientation() == SwingConstants.HORIZONTAL);
-	    if (extentThumbRect.contains(x,y)) {
-		cursorType = horizontal ? Cursor.E_RESIZE_CURSOR : Cursor.N_RESIZE_CURSOR;
-	    } else if (thumbRect.contains(x,y)) {
-		cursorType = horizontal ? Cursor.W_RESIZE_CURSOR : Cursor.S_RESIZE_CURSOR;
-	    } else if (middleRect.contains(x,y)) {
-		cursorType = Cursor.MOVE_CURSOR;
-	    } else {
-		cursorType = Cursor.DEFAULT_CURSOR;
+	    switch (slider.getOrientation()) {
+	    case SwingConstants.HORIZONTAL:
+		int x = (int) (e.getX() * scaleX);
+		if (Math.abs(x - (model.getValue() + model.getExtent())) < 3) {
+		    cursorType = Cursor.E_RESIZE_CURSOR;
+		} else if (Math.abs(x - model.getValue()) < 3) {
+		    cursorType = Cursor.W_RESIZE_CURSOR;
+		} else if (x > model.getValue() && x < (model.getValue() + model.getExtent())) {
+		    cursorType = Cursor.MOVE_CURSOR;
+		} else {
+		    cursorType = Cursor.DEFAULT_CURSOR;
+		}
+		setCursor(Cursor.getPredefinedCursor(cursorType));
+		break;
+	    case SwingConstants.VERTICAL:
+		int y = (int) ((getHeight() - e.getY()) * scaleY);
+		if (Math.abs(y - (model.getValue() + model.getExtent())) < 3) {
+		    cursorType = Cursor.N_RESIZE_CURSOR;
+		} else if (Math.abs(y - model.getValue()) < 3) {
+		    cursorType = Cursor.S_RESIZE_CURSOR;
+		} else if (y > model.getValue() && y < (model.getValue() + model.getExtent())) {
+		    cursorType = Cursor.MOVE_CURSOR;
+		} else {
+		    cursorType = Cursor.DEFAULT_CURSOR;
+		}
+		setCursor(Cursor.getPredefinedCursor(cursorType));
+		break;
 	    }
-	    setCursor(Cursor.getPredefinedCursor(cursorType));
 	}
 
 	@Override
@@ -151,15 +154,12 @@ public class JRangeSlider extends JPanel {
 
     private MouseHandler mouseHandler = new MouseHandler();
     private float scaleX, scaleY;
-    private Rectangle thumbRect, middleRect, extentThumbRect;
 
     private JSlider slider = new JSlider();
 
     public JRangeSlider() {
 	this(0, 100, 0, 10);
     }
-    
-    private RangeSliderUI ui;
 
     public JRangeSlider(int min, int max, int value, int extent) {
 	model.setMinimum(min);
@@ -167,10 +167,6 @@ public class JRangeSlider extends JPanel {
 	model.setValue(value);
 	model.setExtent(extent);
 
-//	slider.setUI(new RangeSliderUI(slider));
-	ui = new RangeSliderUI(slider);
-	ui.installUI(slider);
-	
 	slider.setMinimum(min);
 	slider.setMaximum(max);
 
@@ -249,7 +245,6 @@ public class JRangeSlider extends JPanel {
 	}
 
 	slider.setValue(model.getValue() + model.getExtent());
-	extentThumbRect = this.ui.getThumbRect();
 
 	Rectangle clip = g.getClipBounds();
 
@@ -269,19 +264,7 @@ public class JRangeSlider extends JPanel {
 	}
 	
 	slider.setValue(model.getValue());
-	thumbRect = this.ui.getThumbRect();
 	ui.paintThumb(g);
-
-	switch (slider.getOrientation()) {
-	    case SwingConstants.HORIZONTAL:
-		middleRect = new Rectangle(thumbRect);
-		middleRect.width = extentThumbRect.x - thumbRect.x;
-		break;
-	    case SwingConstants.VERTICAL:
-		middleRect = new Rectangle(extentThumbRect);
-		middleRect.height = thumbRect.y - extentThumbRect.y;
-		break;
-	}
     }
 
     private void computeScaleX() {
@@ -433,8 +416,6 @@ public class JRangeSlider extends JPanel {
     public void setMaximum(int maximum) {
 	model.setMaximum(maximum);
 	slider.setMaximum(maximum);
-	computeScaleX();
-	computeScaleY();
     }
 
     public int getMinimum() {
@@ -444,8 +425,6 @@ public class JRangeSlider extends JPanel {
     public void setMinimum(int minimum) {
 	model.setMinimum(minimum);
 	slider.setMinimum(minimum);
-	computeScaleX();
-	computeScaleY();
     }
 
     public BoundedRangeModel getModel() {
@@ -456,16 +435,12 @@ public class JRangeSlider extends JPanel {
 	this.model = newModel;
 	slider.setMinimum(model.getMinimum());
 	slider.setMaximum(model.getMaximum());
-	computeScaleX();
-	computeScaleY();
     }
 
     public ChangeListener[] getChangeListeners() {
 	return listenerList.getListeners(ChangeListener.class);
     }
 
-    
-    //test it
     public static void main(String... s) {
 	JFrame frame = new JFrame();
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
