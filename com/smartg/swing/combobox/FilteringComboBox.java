@@ -34,7 +34,7 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 	/**
 	 * We have to intercept ActionEvents, so we make our own list.
 	 */
-	private ArrayList<ActionListener> actionListeners = new ArrayList<>();
+	private ArrayList<ActionListener> actionListeners = new ArrayList<ActionListener>();
 
 	/**
 	 * This model contains all elements, the original model - only filtered
@@ -43,20 +43,20 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 	private DefaultComboBoxModel<E> model;
 
 	public FilteringComboBox() {
-		this(new DefaultComboBoxModel<>());
+		this(new DefaultComboBoxModel<E>());
 	}
 
 	public FilteringComboBox(E[] items) {
-		this(new DefaultComboBoxModel<>(items));
+		this(new DefaultComboBoxModel<E>(items));
 	}
 
 	public FilteringComboBox(Vector<E> items) {
-		this(new DefaultComboBoxModel<>(items));
+		this(new DefaultComboBoxModel<E>(items));
 	}
 
 	public FilteringComboBox(ComboBoxModel<E> aModel) {
 		super(aModel);
-		this.model = new DefaultComboBoxModel<>();
+		this.model = new DefaultComboBoxModel<E>();
 		int size = aModel.getSize();
 		for (int i = 0; i < size; i++) {
 			this.model.addElement(aModel.getElementAt(i));
@@ -144,7 +144,6 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 	 *
 	 */
 	private final class ActionHandler implements ActionListener {
-		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (!ignoreAction) {
 				fireActionEvent(e);
@@ -159,7 +158,6 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 		public void keyReleased(KeyEvent e) {
 			int keyCode = e.getKeyCode();
 			if (keyCode == KeyEvent.VK_ENTER) {
-
 				Object selectedItem = getSelectedItem();
 				if (selectedItem != null) {
 					String entry = selectedItem.toString();
@@ -193,7 +191,7 @@ public class FilteringComboBox<E> extends JComboBox<E> {
 
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		FilteringComboBox<String> comboBox = new FilteringComboBox<>(values);
+		FilteringComboBox<String> comboBox = new FilteringComboBox<String>(values);
 		frame.getContentPane().add(comboBox);
 		frame.pack();
 		frame.setVisible(true);
