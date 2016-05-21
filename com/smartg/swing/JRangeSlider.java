@@ -156,8 +156,6 @@ public class JRangeSlider extends JPanel {
 	private MouseHandler mouseHandler = new MouseHandler();
 	private float scaleX, scaleY;
 
-	private boolean showSecondThumb = true;
-
 	private JFunctionSlider slider = new JFunctionSlider();
 
 	public JRangeSlider() {
@@ -251,18 +249,6 @@ public class JRangeSlider extends JPanel {
 		return slider.getFloatFunction().apply(getSecondValue());
 	}
 
-	public boolean isShowSecondThumb() {
-		return showSecondThumb;
-	}
-
-	/**
-	 * Here we may show or hide second thumb 
-	 * @param orientation
-	 */
-	public void setShowSecondThumb(boolean showSecondThumb) {
-		this.showSecondThumb = showSecondThumb;
-	}
-
 	private void fireChangeEvent() {
 		EventListenerListIterator<ChangeListener> iter = new EventListenerListIterator<ChangeListener>(
 				ChangeListener.class, listenerList);
@@ -285,12 +271,7 @@ public class JRangeSlider extends JPanel {
 			ui.paintTrack(g);
 		}
 
-		if (showSecondThumb) {
-			slider.setValue(model.getValue() + model.getExtent());
-		}
-		else {
-			slider.setValue(model.getValue());
-		}
+		slider.setValue(model.getValue() + model.getExtent());
 
 		Rectangle clip = g.getClipBounds();
 
@@ -495,7 +476,6 @@ public class JRangeSlider extends JPanel {
 		frame.getContentPane().setLayout(new FlowLayout());
 		final JRangeSlider jrs = new JRangeSlider(0, 100, 20, 30);
 		jrs.setOrientation(SwingConstants.VERTICAL);
-		jrs.setShowSecondThumb(false);
 
 		final JToggleButton jtb = new JToggleButton("ChangeValue");
 		jtb.addActionListener(new ActionListener() {
