@@ -44,19 +44,22 @@ public class JRangeSlider extends JPanel {
 	private final class MouseHandler extends MouseAdapter {
 		private int cursorType;
 		private int pressX, pressY;
-		private int modelValue;
+		private int firstValue;
+		private int secondValue;
 		private int modelExtent;
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
+			int value = model.getValue() - model.getMinimum();
+			int secondValue = value + model.getExtent();
 			switch (slider.getOrientation()) {
 			case SwingConstants.HORIZONTAL:
-				int x = (int) (e.getX() * scaleX);
-				if (Math.abs(x - (model.getValue() + model.getExtent())) < 3) {
+				int x = ((int) (e.getX() * scaleX));
+				if (Math.abs(x - secondValue) < 3) {
 					cursorType = Cursor.E_RESIZE_CURSOR;
-				} else if (Math.abs(x - model.getValue()) < 3) {
+				} else if (Math.abs(x - value) < 3) {
 					cursorType = Cursor.W_RESIZE_CURSOR;
-				} else if (x > model.getValue() && x < (model.getValue() + model.getExtent())) {
+				} else if (x > value && x < secondValue) {
 					cursorType = Cursor.MOVE_CURSOR;
 				} else {
 					cursorType = Cursor.DEFAULT_CURSOR;
@@ -64,12 +67,12 @@ public class JRangeSlider extends JPanel {
 				setCursor(Cursor.getPredefinedCursor(cursorType));
 				break;
 			case SwingConstants.VERTICAL:
-				int y = (int) ((getHeight() - e.getY()) * scaleY);
-				if (Math.abs(y - (model.getValue() + model.getExtent())) < 3) {
+				int y = ((int) ((getHeight() - e.getY()) * scaleY));
+				if (Math.abs(y - secondValue) < 3) {
 					cursorType = Cursor.N_RESIZE_CURSOR;
-				} else if (Math.abs(y - model.getValue()) < 3) {
+				} else if (Math.abs(y - value) < 3) {
 					cursorType = Cursor.S_RESIZE_CURSOR;
-				} else if (y > model.getValue() && y < (model.getValue() + model.getExtent())) {
+				} else if (y > value && y < secondValue) {
 					cursorType = Cursor.MOVE_CURSOR;
 				} else {
 					cursorType = Cursor.DEFAULT_CURSOR;
@@ -81,26 +84,29 @@ public class JRangeSlider extends JPanel {
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			float delta;
+			int delta;
+			int value;
 			switch (cursorType) {
 			case Cursor.DEFAULT_CURSOR:
 				break;
 			case Cursor.MOVE_CURSOR:
 				if (slider.getOrientation() == SwingConstants.HORIZONTAL) {
-					delta = (pressX - e.getX()) * scaleX;
-					model.setValue((int) (modelValue - delta));
+					delta = Math.round((pressX - e.getX()) * scaleX);
+					value = firstValue - delta;
+					model.setValue((int) value);
 				} else {
-					delta = -(pressY - e.getY()) * scaleY;
-					model.setValue((int) (modelValue - delta));
+					delta = Math.round(-(pressY - e.getY()) * scaleY);
+					value = firstValue - delta;
+					model.setValue((int) value);
 				}
 				repaint();
 				break;
 
 			case Cursor.E_RESIZE_CURSOR:
-				delta = (pressX - e.getX()) * scaleX;
+				delta = Math.round((pressX - e.getX()) * scaleX);
 				int extent = (int) (modelExtent - delta);
 				if (extent < 0) {
-					setValue(modelValue + extent);
+					model.setValue(firstValue + extent);
 					model.setExtent(0);
 				} else {
 					model.setExtent(extent);
@@ -109,19 +115,24 @@ public class JRangeSlider extends JPanel {
 				break;
 
 			case Cursor.W_RESIZE_CURSOR:
-				delta = (pressX - e.getX()) * scaleX;
-				if (delta > modelValue) {
-					delta = modelValue;
+				delta = Math.round((pressX - e.getX()) * scaleX);
+				if (delta > firstValue) {
+					delta = firstValue;
 				}
-				setValue((int) (modelValue - delta));
+				value = firstValue - delta;
+				if(value < model.getMinimum()) {
+					value = model.getMinimum();
+				}
+				model.setValue(value);
+				model.setExtent(secondValue - value);
 				repaint();
 				break;
 
 			case Cursor.N_RESIZE_CURSOR:
-				delta = -(pressY - e.getY()) * scaleY;
+				delta = Math.round(-(pressY - e.getY()) * scaleY);
 				extent = (int) (modelExtent - delta);
 				if (extent < 0) {
-					setValue(modelValue + extent);
+					model.setValue(firstValue + extent);
 					model.setExtent(0);
 				} else {
 					model.setExtent(extent);
@@ -130,11 +141,16 @@ public class JRangeSlider extends JPanel {
 				break;
 
 			case Cursor.S_RESIZE_CURSOR:
-				delta = -(pressY - e.getY()) * scaleY;
-				if (delta > modelValue) {
-					delta = modelValue;
+				delta = Math.round(-(pressY - e.getY()) * scaleY);
+				if (delta > firstValue) {
+					delta = firstValue;
 				}
-				setValue((int) (modelValue - delta));
+				value = firstValue - delta;
+				if(value < model.getMinimum()) {
+					value = model.getMinimum();
+				}
+				model.setValue(value);
+				model.setExtent(secondValue - value);
 				repaint();
 				break;
 			}
@@ -144,8 +160,9 @@ public class JRangeSlider extends JPanel {
 		public void mousePressed(MouseEvent e) {
 			pressX = e.getX();
 			pressY = e.getY();
-			modelValue = model.getValue();
+			firstValue = model.getValue();
 			modelExtent = model.getExtent();
+			secondValue = model.getValue() + model.getExtent();
 		}
 	}
 
@@ -156,7 +173,19 @@ public class JRangeSlider extends JPanel {
 	private MouseHandler mouseHandler = new MouseHandler();
 	private float scaleX, scaleY;
 
-	private JFunctionSlider slider = new JFunctionSlider();
+	private JSlider slider = new JSlider();
+
+	private Function<Integer, Integer> function = new Function<Integer, Integer>() {
+		public Integer apply(Integer t) {
+			return t;
+		}
+	};
+
+	private Function<Integer, Float> floatFunction = new Function<Integer, Float>() {
+		public Float apply(Integer t) {
+			return t + 0f;
+		}
+	};
 
 	public JRangeSlider() {
 		this(0, 100, 0, 10);
@@ -226,27 +255,43 @@ public class JRangeSlider extends JPanel {
 	}
 
 	public Function<Integer, Integer> getFunction() {
-		return slider.getFunction();
+		return function;
 	}
 
-	public void setFunction(Function<Integer, Integer> f) {
-		slider.setFunction(f);
+	public void setFunction(Function<Integer, Integer> function) {
+		if (function != null) {
+			this.function = function;
+		} else {
+			this.function = new Function<Integer, Integer>() {
+				public Integer apply(Integer t) {
+					return t;
+				}
+			};
+		}
 	}
 
 	public Function<Integer, Float> getFloatFunction() {
-		return slider.getFloatFunction();
+		return floatFunction;
 	}
 
-	public void setFloatFunction(Function<Integer, Float> f) {
-		slider.setFloatFunction(f);
+	public void setFloatFunction(Function<Integer, Float> floatFunction) {
+		if (floatFunction != null) {
+			this.floatFunction = floatFunction;
+		} else {
+			this.floatFunction = new Function<Integer, Float>() {
+				public Float apply(Integer t) {
+					return t + 0f;
+				}
+			};
+		}
 	}
 
 	public float getFloatValue() {
-		return slider.getFloatFunction().apply(getValue());
+		return floatFunction.apply(getValue());
 	}
 
 	public float getFloatSecondValue() {
-		return slider.getFloatFunction().apply(getSecondValue());
+		return floatFunction.apply(getSecondValue());
 	}
 
 	private void fireChangeEvent() {
@@ -262,21 +307,24 @@ public class JRangeSlider extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-
+		
+		slider.setMinimum(model.getMinimum());
+		slider.setMaximum(model.getMaximum());
+		
 		slider.setBounds(getBounds());
 
-		slider.setValue(0);
+		slider.setValue(model.getMinimum());
 		BasicSliderUI ui = (BasicSliderUI) slider.getUI();
 		if (getPaintTrack()) {
 			ui.paintTrack(g);
 		}
 
-		slider.setValue(model.getValue() + model.getExtent());
+		slider.setValue(getSecondValue());
 
 		Rectangle clip = g.getClipBounds();
 
 		if (getOrientation() == SwingConstants.HORIZONTAL) {
-			Rectangle r = new Rectangle((int) (model.getValue() / scaleX), 0, getWidth(), getHeight());
+			Rectangle r = new Rectangle((int) ((model.getValue() - model.getMinimum()) / scaleX), 0, getWidth(), getHeight());
 			r = r.intersection(clip);
 			g.setClip(r.x, r.y, r.width, r.height);
 		}
@@ -292,7 +340,7 @@ public class JRangeSlider extends JPanel {
 			ui.paintTicks(g);
 		}
 
-		slider.setValue(model.getValue());
+		slider.setValue(getValue());
 		ui.paintThumb(g);
 	}
 
@@ -475,6 +523,11 @@ public class JRangeSlider extends JPanel {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new FlowLayout());
 		final JRangeSlider jrs = new JRangeSlider(0, 100, 20, 30);
+		jrs.setFunction(new Function<Integer, Integer>() {
+			public Integer apply(Integer t) {
+				return (t / 2) * 2 + 1;
+			}
+		});
 		jrs.setOrientation(SwingConstants.VERTICAL);
 
 		final JToggleButton jtb = new JToggleButton("ChangeValue");
