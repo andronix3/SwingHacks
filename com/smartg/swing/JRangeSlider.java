@@ -115,10 +115,8 @@ public class JRangeSlider extends JPanel {
 				break;
 
 			case Cursor.W_RESIZE_CURSOR:
+				System.out.println("W_RESIZE_CURSOR");
 				delta = Math.round((pressX - e.getX()) * scaleX);
-				if (delta > firstValue) {
-					delta = firstValue;
-				}
 				value = firstValue - delta;
 				if(value < model.getMinimum()) {
 					value = model.getMinimum();
@@ -142,9 +140,6 @@ public class JRangeSlider extends JPanel {
 
 			case Cursor.S_RESIZE_CURSOR:
 				delta = Math.round(-(pressY - e.getY()) * scaleY);
-				if (delta > firstValue) {
-					delta = firstValue;
-				}
 				value = firstValue - delta;
 				if(value < model.getMinimum()) {
 					value = model.getMinimum();
