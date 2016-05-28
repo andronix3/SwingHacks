@@ -30,7 +30,7 @@ public class AutoCompleteHandler<E> {
     private final JComboBox<E> comboBox;
     private final KeyHandler keyHandler = new KeyHandler();
     private boolean ignoreAction;
-    private List<E> elements = new ArrayList<E>();
+    private List<E> elements = new ArrayList<>();
     private final Function<String, List<E>> provider;
     private final ActionListener listener;
     private int count;
@@ -56,8 +56,8 @@ public class AutoCompleteHandler<E> {
         ignoreAction = true;
         comboBox.removeAllItems();
 
-        elements.stream().forEach((E item) -> {
-            comboBox.addItem(item);
+        elements.stream().forEach((E custInfo) -> {
+            comboBox.addItem(custInfo);
         });
 
         int size = elements.size();
@@ -72,7 +72,12 @@ public class AutoCompleteHandler<E> {
     }
 
     public void reload() {
-        elements = provider.apply(keyHandler.value);
+        if(keyHandler.value.length() >= minTextSize) {
+            elements = provider.apply(keyHandler.value);
+        }
+        else {
+            elements.clear();
+        }
         updateComboBox(keyHandler.value);
     }
 
@@ -81,9 +86,10 @@ public class AutoCompleteHandler<E> {
     }
 
     /**
-     * Set minimum text length. 
-     * Before minimum text length is reached, AutoCompleteHandler will not start to search for entries.
-     * @param minTextSize 
+     * Set minimum text length. Before minimum text length is reached,
+     * AutoCompleteHandler will not start to search for entries.
+     *
+     * @param minTextSize
      */
     public void setMinTextSize(int minTextSize) {
         this.minTextSize = minTextSize;
@@ -95,15 +101,18 @@ public class AutoCompleteHandler<E> {
 
         @Override
         public void keyReleased(KeyEvent e) {
+            String text = ((JTextField) comboBox.getEditor().getEditorComponent()).getText();
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 comboBox.setPopupVisible(false);
+                if(text.isEmpty()) {
+                    comboBox.setSelectedIndex(-1);
+                }
                 return;
             }
             if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                 comboBox.setPopupVisible(false);
                 return;
             }
-            String text = ((JTextField) comboBox.getEditor().getEditorComponent()).getText();
             if (text.equalsIgnoreCase(value)) {
                 return;
             }
@@ -137,7 +146,6 @@ public class AutoCompleteHandler<E> {
         UIManager.put("ComboBox.noActionOnKeyNavigation", true);
 
         JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(comboBox);
         frame.pack();
         frame.setVisible(true);
