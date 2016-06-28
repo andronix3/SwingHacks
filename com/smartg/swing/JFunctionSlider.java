@@ -33,7 +33,6 @@ public class JFunctionSlider extends JSlider {
 	};
 
 	public JFunctionSlider() {
-		super();
 	}
 
 	public JFunctionSlider(BoundedRangeModel brm) {

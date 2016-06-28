@@ -50,6 +50,9 @@ public class JRangeSlider extends JPanel {
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
+			if(!isEnabled()) {
+				return;
+			}
 			int value = model.getValue() - model.getMinimum();
 			int secondValue = value + model.getExtent();
 			switch (slider.getOrientation()) {
@@ -84,6 +87,9 @@ public class JRangeSlider extends JPanel {
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
+			if(!isEnabled()) {
+				return;
+			}
 			int delta;
 			int value;
 			switch (cursorType) {
@@ -152,6 +158,9 @@ public class JRangeSlider extends JPanel {
 
 		@Override
 		public void mousePressed(MouseEvent e) {
+			if(!isEnabled()) {
+				return;
+			}
 			pressX = e.getX();
 			pressY = e.getY();
 			firstValue = model.getValue();
@@ -212,6 +221,14 @@ public class JRangeSlider extends JPanel {
 				repaint();
 			}
 		});
+	}
+	
+	
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		slider.setEnabled(enabled);
 	}
 
 	public int getValue() {
@@ -435,7 +452,7 @@ public class JRangeSlider extends JPanel {
 			slider.setFont(font);
 		}
 	}
-
+	
 	@SuppressWarnings("rawtypes")
 	public Hashtable createStandardLabels(int increment, int start) {
 		return slider.createStandardLabels(increment, start);
