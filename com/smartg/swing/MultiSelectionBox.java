@@ -200,14 +200,16 @@ public class MultiSelectionBox<T> extends JPanel {
 	label.addMouseListener(new MouseAdapter() {
 	    @Override
 	    public void mouseReleased(MouseEvent e) {
-		if (closeIcon == null) {
-		    model.setVisible(true, item);
-		    label.setVisible(false);
-		    selectedItems.remove(item);
-		} else if (e.getX() > (label.getWidth() - (closeIcon.getIconWidth() + getInsets().right))) {
-		    model.setVisible(true, item);
-		    label.setVisible(false);
-		    selectedItems.remove(item);
+		if (isEnabled()) {
+		    if (closeIcon == null) {
+			model.setVisible(true, item);
+			label.setVisible(false);
+			selectedItems.remove(item);
+		    } else if (e.getX() > (label.getWidth() - (closeIcon.getIconWidth() + getInsets().right))) {
+			model.setVisible(true, item);
+			label.setVisible(false);
+			selectedItems.remove(item);
+		    }
 		}
 	    }
 	});
@@ -218,6 +220,10 @@ public class MultiSelectionBox<T> extends JPanel {
     public void setEnabled(boolean enabled) {
 	super.setEnabled(enabled);
 	comboBox.setEnabled(enabled);
+	Component[] cmps = getComponents();
+	for(Component c : cmps) {
+	    c.setEnabled(enabled);
+	}
     }
 
     public void removeItem(T item) {
@@ -226,7 +232,7 @@ public class MultiSelectionBox<T> extends JPanel {
 	remove(label);
 	selectedItems.remove(item);
     }
-    
+
     public void clear() {
 	removeAll();
 	add(viewport);

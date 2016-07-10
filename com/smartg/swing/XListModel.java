@@ -122,7 +122,9 @@ public class XListModel<T> extends AbstractListModel<T> implements MutableComboB
 	valid = false;
 	XListModel.XItem<T> t = map.get(item);
 	if(visible != t.visible) {
+	    t.visible = visible;
 	    if(visible) {
+		reindex();
 		fireIntervalAdded(this, t.index, t.index);
 	    }
 	    else {
