@@ -140,10 +140,12 @@ public class MultiSelectionBox<T> extends JPanel {
 	    public void ancestorRemoved(AncestorEvent e) {
 		viewport.setViewPosition(new Point(comboBox.getWidth() - arrowButton.getWidth(), 0));
 	    }
+
 	    @Override
 	    public void ancestorMoved(AncestorEvent e) {
 		viewport.setViewPosition(new Point(comboBox.getWidth() - arrowButton.getWidth(), 0));
 	    }
+
 	    @Override
 	    public void ancestorAdded(AncestorEvent e) {
 		viewport.setViewPosition(new Point(comboBox.getWidth() - arrowButton.getWidth(), 0));
@@ -167,11 +169,10 @@ public class MultiSelectionBox<T> extends JPanel {
 		@Override
 		public void mouseReleased(MouseEvent e) {
 		    int index = list.locationToIndex(e.getPoint());
-		    ArrayList<T> lst = new ArrayList<>();
 		    T elem = model.getElementAt(index);
-		    lst.add(elem);
-		    model.setVisible(false, lst);
+		    model.setVisible(false, elem);
 		    map.get(elem).setVisible(true);
+		    selectedItems.add(elem);
 		}
 	    });
 
@@ -213,11 +214,25 @@ public class MultiSelectionBox<T> extends JPanel {
 	return label;
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+	super.setEnabled(enabled);
+	comboBox.setEnabled(enabled);
+    }
+
     public void removeItem(T item) {
 	JLabel label = map.get(item);
 	comboBox.removeItem(item);
 	remove(label);
 	selectedItems.remove(item);
+    }
+    
+    public void clear() {
+	removeAll();
+	add(viewport);
+	selectedItems.clear();
+	comboBox.removeAll();
+	map.clear();
     }
 
     public void addElements(List<T> list) {
