@@ -35,6 +35,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.plaf.ComboBoxUI;
 
 import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
@@ -133,6 +135,21 @@ public class MultiSelectionBox<T> extends JPanel {
 	    }
 	});
 
+	addAncestorListener(new AncestorListener() {
+	    @Override
+	    public void ancestorRemoved(AncestorEvent e) {
+		viewport.setViewPosition(new Point(comboBox.getWidth() - arrowButton.getWidth(), 0));
+	    }
+	    @Override
+	    public void ancestorMoved(AncestorEvent e) {
+		viewport.setViewPosition(new Point(comboBox.getWidth() - arrowButton.getWidth(), 0));
+	    }
+	    @Override
+	    public void ancestorAdded(AncestorEvent e) {
+		viewport.setViewPosition(new Point(comboBox.getWidth() - arrowButton.getWidth(), 0));
+	    }
+	});
+
 	add(viewport);
 
 	try {
@@ -167,33 +184,35 @@ public class MultiSelectionBox<T> extends JPanel {
     }
 
     public void addItem(T item) {
-	JLabel label = new JLabel(String.valueOf(item), closeIcon, SwingConstants.LEADING);
-	label.setHorizontalTextPosition(SwingConstants.LEFT);
-	label.setBorder(labelBorder);
+	JLabel label = createLabel(item);
+	add(label);
 	map.put(item, label);
 	comboBox.addItem(item);
-	add(label);
+    }
+
+    private JLabel createLabel(T item) {
+	JLabel label;
+	label = new JLabel(String.valueOf(item), closeIcon, SwingConstants.LEADING);
+	label.setHorizontalTextPosition(SwingConstants.LEFT);
+	label.setBorder(labelBorder);
 	label.setVisible(false);
 	label.addMouseListener(new MouseAdapter() {
 	    @Override
 	    public void mouseReleased(MouseEvent e) {
 		if (closeIcon == null) {
-		    ArrayList<T> list = new ArrayList<>();
-		    list.add(item);
-		    model.setVisible(true, list);
+		    model.setVisible(true, item);
 		    label.setVisible(false);
 		    selectedItems.remove(item);
 		} else if (e.getX() > (label.getWidth() - (closeIcon.getIconWidth() + getInsets().right))) {
-		    ArrayList<T> list = new ArrayList<>();
-		    list.add(item);
-		    model.setVisible(true, list);
+		    model.setVisible(true, item);
 		    label.setVisible(false);
 		    selectedItems.remove(item);
 		}
 	    }
 	});
+	return label;
     }
-    
+
     public void removeItem(T item) {
 	JLabel label = map.get(item);
 	comboBox.removeItem(item);
@@ -289,6 +308,5 @@ public class MultiSelectionBox<T> extends JPanel {
 	    frame2.setVisible(true);
 
 	}
-	msbox.comboBox.setSelectedIndex(0);
     }
 }
