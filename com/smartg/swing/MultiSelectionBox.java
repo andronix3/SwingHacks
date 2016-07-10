@@ -1,6 +1,6 @@
 package com.smartg.swing;
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -8,218 +8,284 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
+import javax.swing.JViewport;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EtchedBorder;
+import javax.swing.plaf.ComboBoxUI;
 
-import com.smartg.swing.layout.JNodeLayout;
-import com.smartg.swing.layout.LayoutNode;
-import com.smartg.swing.layout.NodeAlignment;
+import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
 
 /**
- * Really minimal implementation. No ListModel, no SelectionModel. Just add a
- * few items to it and then get List with selected items. Thats all.
  * 
+ * MultiSelectionBox - selected items are moved from combo to panel. 
+ * Items removed from panel appears back in comboBox.
+ *  
  * @author andro
  *
  * @param <T>
  */
 public class MultiSelectionBox<T> extends JPanel {
 
-	private EtchedBorder labelBorder = new EtchedBorder();
+    /**
+     * FlowLayout returns incorrect preferredSize, because it ignores width of
+     * target Container, so targets parent can't compute correct height.
+     * 
+     * @author andro
+     *
+     */
+    static class FlowL extends FlowLayout {
+    
+        private static final long serialVersionUID = 6046127399548228005L;
+    
+        public FlowL(int align, int hgap, int vgap) {
+            super(align, hgap, vgap);
+        }
+    
+        @Override
+        public Dimension preferredLayoutSize(Container target) {
+            Dimension ps = super.preferredLayoutSize(target);
+            Insets insets = target.getInsets();
+            int w = target.getWidth();
+            w -= insets.left + insets.right;
+            float m = ps.width / (float) w;
+            if (m > 1) {
+        	ps.width = w;
+        	ps.height = ps.height * Math.round(m + 0.5f);
+            }
+            return ps;
+        }
+    }
 
-	private static final long serialVersionUID = -5302561691114454984L;
+    static final class SimpleCloseIcon implements Icon {
+        private final Font font = new Font("Dialog", Font.BOLD, 12);
+    
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Font fnt = g.getFont();
+            g.setFont(font);
+            String s = "x";
+            int sw = g.getFontMetrics().stringWidth(s);
+            int sh = g.getFontMetrics().getHeight();
+            g.drawString(s, x + (getIconWidth() - sw) / 2, y + (getIconHeight() + sh / 2) / 2);
+            g.setFont(fnt);
+        }
+    
+        @Override
+        public int getIconWidth() {
+            return 15;
+        }
+    
+        @Override
+        public int getIconHeight() {
+            return 15;
+        }
+    }
 
-	private final JPopupMenu popupMenu = new JPopupMenu();
-	private Icon closeIcon;
-	private boolean popupVisible;
-	private final ArrayList<T> selectedItems = new ArrayList<>();
+    private static final long serialVersionUID = -5751711899713905904L;
 
-	public MultiSelectionBox() {
-		super(new FlowL(FlowLayout.LEFT, 5, 10));
+    private EtchedBorder labelBorder = new EtchedBorder();
 
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (!popupVisible) {
-					// reset preferredSize first
-					popupMenu.setPreferredSize(null);
-					Dimension preferredSize = popupMenu.getPreferredSize();
-					popupMenu.setPopupSize(getWidth(), preferredSize.height);
-					popupMenu.show(MultiSelectionBox.this, 0, getHeight());
-				}
-				popupVisible = !popupVisible;
-			}
-		});
-	}
+    private Icon closeIcon = new MultiSelectionBox.SimpleCloseIcon();
+    private final HashMap<T, JLabel> map = new HashMap<>();
 
-	public void addElements(List<T> list) {
-		list.stream().forEach(t -> addItem(t));
-	}
+    private final ArrayList<T> selectedItems = new ArrayList<>();
+    private final XListModel<T> model = new XListModel<>();
+    final JComboBox<T> comboBox = new JComboBox<>(model);
 
-	public void setElements(List<T> list) {
-		reset();
-		addElements(list);
-	}
+    private final JViewport viewport;
 
-	public Icon getCloseIcon() {
-		return closeIcon;
-	}
+    private JButton arrowButton;
 
-	public void setCloseIcon(Icon closeIcon) {
-		this.closeIcon = closeIcon;
-	}
+    @SuppressWarnings("unchecked")
+    public MultiSelectionBox() {
+        setLayout(new MultiSelectionBox.FlowL(FlowLayout.LEFT, 5, 10));
+        viewport = new JViewport();
+        viewport.setView(comboBox);
+        viewport.setPreferredSize(new Dimension(20, 20));
+        comboBox.addActionListener(new ActionListener() {
+    	@Override
+    	public void actionPerformed(ActionEvent e) {
+    	    viewport.setViewPosition(new Point(comboBox.getWidth() - arrowButton.getWidth(), 0));
+    	}
+        });
 
-	public EtchedBorder getLabelBorder() {
-		return labelBorder;
-	}
+        add(viewport);
 
-	public void setLabelBorder(EtchedBorder labelBorder) {
-		this.labelBorder = labelBorder;
-	}
+        try {
+    	ComboBoxUI ui = comboBox.getUI();
+    	Class<? extends ComboBoxUI> cls = ui.getClass();
+    	while (!cls.getName().endsWith("BasicComboBoxUI")) {
+    	    cls = (Class<? extends ComboBoxUI>) cls.getSuperclass();
+    	}
 
-	private void reset() {
-		popupMenu.removeAll();
-		removeAll();
-	}
+    	Field listField = cls.getDeclaredField("listBox");
+    	listField.setAccessible(true);
+    	JList<T> list = (JList<T>) listField.get(ui);
 
-	public List<T> getSelectedItems() {
-		return Collections.unmodifiableList(selectedItems);
-	}
+    	list.addMouseListener(new MouseAdapter() {
+    	    @Override
+    	    public void mouseReleased(MouseEvent e) {
+    		int index = list.locationToIndex(e.getPoint());
+    		ArrayList<T> lst = new ArrayList<>();
+    		T elem = model.getElementAt(index);
+    		lst.add(elem);
+    		model.setVisible(false, lst);
+    		map.get(elem).setVisible(true);
+    	    }
+    	});
 
-	private void addItem(T item) {
-		JLabel label = new JLabel(String.valueOf(item), closeIcon, SwingConstants.LEADING);
-		label.setHorizontalTextPosition(SwingConstants.LEFT);
-		label.setBorder(labelBorder);
-		ActionMenuItem menuItem = new ActionMenuItem(label, item);
-		popupMenu.add(menuItem);
-		add(label);
-		label.setVisible(false);
-		label.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (closeIcon == null) {
-					menuItem.setVisible(true);
-					label.setVisible(false);
-					selectedItems.remove(item);
-				} else if (e.getX() > (label.getWidth() - closeIcon.getIconWidth())) {
-					menuItem.setVisible(true);
-					label.setVisible(false);
-					selectedItems.remove(item);
-				}
-			}
-		});
-	}
+    	Field arrowButtonField = cls.getDeclaredField("arrowButton");
+    	arrowButtonField.setAccessible(true);
+    	arrowButton = (JButton) arrowButtonField.get(ui);
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
+    	Logger.getLogger(getClass().getName()).log(Level.WARNING, ex.getMessage(), ex);
+        }
+    }
 
-	@Override
-	public Dimension getPreferredSize() {
-		Dimension d = super.getPreferredSize();
-		d.height = Math.max(30, d.height);
-		d.width += 10;
-		return d;
-	}
+    private void addItem(T item) {
+        JLabel label = new JLabel(String.valueOf(item), closeIcon, SwingConstants.LEADING);
+        label.setHorizontalTextPosition(SwingConstants.LEFT);
+        label.setBorder(labelBorder);
+        map.put(item, label);
+        comboBox.addItem(item);
+        add(label);
+        label.setVisible(false);
+        label.addMouseListener(new MouseAdapter() {
+    	@Override
+    	public void mouseReleased(MouseEvent e) {
+    	    if (closeIcon == null) {
+    		ArrayList<T> list = new ArrayList<>();
+    		list.add(item);
+    		model.setVisible(true, list);
+    		label.setVisible(false);
+    		selectedItems.remove(item);
+    	    } else if (e.getX() > (label.getWidth() - (closeIcon.getIconWidth() + getInsets().right))) {
+    		ArrayList<T> list = new ArrayList<>();
+    		list.add(item);
+    		model.setVisible(true, list);
+    		label.setVisible(false);
+    		selectedItems.remove(item);
+    	    }
+    	}
+        });
+    }
 
-	private static final class SimpleCloseIcon implements Icon {
-		private final Font font = new Font("Dialog", Font.BOLD, 12);
-		
-		@Override
-		public void paintIcon(Component c, Graphics g, int x, int y) {
-			Font fnt = g.getFont();
-			g.setFont(font);
-			g.drawString("x", x, y + 10);
-			g.setFont(fnt);
-		}
+    public void addElements(List<T> list) {
+        list.stream().forEach(t -> {
+    	addItem(t);
+        });
+    }
 
-		@Override
-		public int getIconWidth() {
-			return 15;
-		}
+    public void setElements(List<T> list) {
+        reset();
+        addElements(list);
+    }
 
-		@Override
-		public int getIconHeight() {
-			return 15;
-		}
-	}
+    public Icon getCloseIcon() {
+        return closeIcon;
+    }
 
-	class ActionMenuItem extends JMenuItem {
+    public void setCloseIcon(Icon closeIcon) {
+        this.closeIcon = closeIcon;
+    }
 
-		private static final long serialVersionUID = 4448429416616668679L;
+    public EtchedBorder getLabelBorder() {
+        return labelBorder;
+    }
 
-		public ActionMenuItem(JLabel label, T item) {
-			super(label.getText());
-			addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					setVisible(false);
-					label.setVisible(true);
-					popupVisible = false;
-					selectedItems.add(item);
-				}
-			});
-		}
-	}
+    public void setLabelBorder(EtchedBorder labelBorder) {
+        this.labelBorder = labelBorder;
+    }
 
-	/**
-	 * FlowLayout returns incorrect preferredSize, because it ignores width of
-	 * target Container, so targets parent can't compute correct height.
-	 * 
-	 * @author andro
-	 *
-	 */
-	private static class FlowL extends FlowLayout {
+    private void reset() {
+        removeAll();
+        add(viewport);
+    }
 
-		private static final long serialVersionUID = 6046127399548228005L;
+    public List<T> getSelectedItems() {
+        return Collections.unmodifiableList(selectedItems);
+    }
 
-		public FlowL(int align, int hgap, int vgap) {
-			super(align, hgap, vgap);
-		}
+    @Override
+    public Dimension getPreferredSize() {
+        Dimension d = super.getPreferredSize();
+        d.height = Math.max(30, d.height);
+        d.width += 10;
+        return d;
+    }
 
-		@Override
-		public Dimension preferredLayoutSize(Container target) {
-			Dimension ps = super.preferredLayoutSize(target);
-			Insets insets = target.getInsets();
-			int w = target.getWidth();
-			w -= insets.left + insets.right;
-			float m = ps.width / (float) w;
-			if (m > 1) {
-				ps.width = w;
-				ps.height = ps.height * Math.round(m + 0.5f);
-			}
-			return ps;
-		}
-	}
-
-	public static void main(String[] args) {
-		String[] labels = { "One", "Two", "Three", "Four", "Five", "Six", "Seven" };
-		MultiSelectionBox<String> msb = new MultiSelectionBox<>();
-		msb.setBackground(Color.WHITE);
-		msb.setBorder(new EtchedBorder(EtchedBorder.RAISED));
-		msb.setCloseIcon(new SimpleCloseIcon());
-		msb.setElements(Arrays.asList(labels));
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JPanel box = new JPanel();
-		LayoutNode.HorizontalNode root = new LayoutNode.HorizontalNode("root");
-		box.setLayout(new JNodeLayout(box, root));
-		root.setHorizontalAlignment(NodeAlignment.STRETCHED);
-		root.setVerticalAlignment(NodeAlignment.TOP);
-		root.add(msb);
-		frame.getContentPane().add(box);
-		frame.pack();
-		frame.setVisible(true);
-	}
+    public static void main(String[] args) throws UnsupportedLookAndFeelException {
+        AcrylLookAndFeel lnf = new com.jtattoo.plaf.acryl.AcrylLookAndFeel();
+        UIManager.setLookAndFeel(lnf);
+    
+        String[] labels = { "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+    
+        JList<String> list = new JList<>();
+        ArrayList<String> elements = new ArrayList<>();
+        for (String s : labels) {
+            elements.add(s);
+        }
+        XListModel<String> model = new XListModel<>(elements);
+        list.setModel(model);
+    
+        JComboBox<String> comboBox = new JComboBox<>(model);
+    
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+        	if (e.getClickCount() > 1) {
+        	    int index = list.locationToIndex(e.getPoint());
+        	    ArrayList<String> list = new ArrayList<>();
+        	    list.add(model.getElementAt(index));
+        	    model.setVisible(false, list);
+        	}
+            }
+        });
+        {
+            JFrame frame2 = new JFrame();
+            frame2.getContentPane().setLayout(new BorderLayout());
+            frame2.getContentPane().add(list);
+            frame2.getContentPane().add(comboBox, BorderLayout.SOUTH);
+    
+            frame2.pack();
+            frame2.setVisible(true);
+        }
+    
+        MultiSelectionBox<String> msbox = new MultiSelectionBox<>();
+        msbox.addElements(Arrays.asList(labels));
+    
+        {
+            JFrame frame2 = new JFrame();
+            frame2.getContentPane().setLayout(new BorderLayout());
+            frame2.getContentPane().add(msbox);
+    
+            frame2.pack();
+            frame2.setVisible(true);
+    
+        }
+        msbox.comboBox.setSelectedIndex(0);
+    }
 }
