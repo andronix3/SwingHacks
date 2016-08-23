@@ -28,7 +28,7 @@ public class XListModel<T> extends AbstractListModel<T> implements MutableComboB
 
 	@Override
 	public String toString() {
-	    return String.valueOf(obj);
+	    return String.valueOf(obj) + " " + visible;
 	}
     }
 
@@ -96,7 +96,6 @@ public class XListModel<T> extends AbstractListModel<T> implements MutableComboB
     }
 
     public void setVisible(boolean visible, List<T> items) {
-	valid = false;
 	ArrayList<XListModel.XItem<T>> list = new ArrayList<>();
 	for (T item : items) {
 	    XListModel.XItem<T> t = map.get(item);
@@ -105,6 +104,10 @@ public class XListModel<T> extends AbstractListModel<T> implements MutableComboB
 		list.add(t);
 	    }
 	}
+	if (list.isEmpty()) {
+	    return;
+	}
+	valid = false;
 	if (visible) {
 	    // indexes are invalid, so reindex before
 	    reindex();
@@ -119,15 +122,14 @@ public class XListModel<T> extends AbstractListModel<T> implements MutableComboB
     }
 
     public void setVisible(boolean visible, T item) {
-	valid = false;
 	XListModel.XItem<T> t = map.get(item);
-	if(visible != t.visible) {
+	if (visible != t.visible) {
+	    valid = false;
 	    t.visible = visible;
-	    if(visible) {
+	    if (visible) {
 		reindex();
 		fireIntervalAdded(this, t.index, t.index);
-	    }
-	    else {
+	    } else {
 		int index = t.index;
 		reindex();
 		fireIntervalRemoved(this, index, index);

@@ -525,6 +525,7 @@ public class JRangeSlider extends JPanel {
 	this.model = newModel;
 	slider.setMinimum(model.getMinimum());
 	slider.setMaximum(model.getMaximum());
+	fireChangeEvent();
     }
 
     public ChangeListener[] getChangeListeners() {
