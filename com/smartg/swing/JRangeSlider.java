@@ -45,7 +45,7 @@ public class JRangeSlider extends JPanel {
 	private int cursorType;
 	private int pressX, pressY;
 	private int firstValue;
-//	private int secondValue;
+	// private int secondValue;
 	private int modelExtent;
 
 	@Override
@@ -102,6 +102,7 @@ public class JRangeSlider extends JPanel {
 		    delta = Math.round(-(pressY - e.getY()) * scaleY);
 		}
 		value = firstValue - delta;
+		
 		setValue((int) value);
 		setSecondValue(getValue() + modelExtent);
 
@@ -111,47 +112,40 @@ public class JRangeSlider extends JPanel {
 	    case Cursor.E_RESIZE_CURSOR:
 		delta = Math.round((pressX - e.getX()) * scaleX);
 		int extent = (int) (modelExtent - delta);
-		if (extent < 0) {
-		    setValue(firstValue + extent);
-		    model.setExtent(0);
-		} else {
-		    setSecondValue(model.getValue() + extent);
-		    // model.setExtent(extent);
+		if (extent < minExtent) {
+		    extent = minExtent;
 		}
+		int secondValue = firstValue + modelExtent - delta;
+
+		setValue(secondValue - extent);
+		setSecondValue(secondValue);
 		repaint();
 		break;
 
 	    case Cursor.W_RESIZE_CURSOR:
 		delta = Math.round((pressX - e.getX()) * scaleX);
 		value = firstValue - delta;
-		// if (value < model.getMinimum()) {
-		// value = model.getMinimum();
-		// }
 		setValue(value);
-		// model.setExtent(secondValue - value);
 		repaint();
 		break;
 
 	    case Cursor.N_RESIZE_CURSOR:
 		delta = Math.round(-(pressY - e.getY()) * scaleY);
 		extent = (int) (modelExtent - delta);
-		if (extent < 0) {
-		    setValue(firstValue + extent);
-		    model.setExtent(0);
-		} else {
-		    setSecondValue(model.getValue() + extent);
+		if (extent < minExtent) {
+		    extent = minExtent;
 		}
+		secondValue = firstValue + modelExtent - delta;
+
+		setValue(secondValue - extent);
+		setSecondValue(secondValue);
 		repaint();
 		break;
 
 	    case Cursor.S_RESIZE_CURSOR:
 		delta = Math.round(-(pressY - e.getY()) * scaleY);
 		value = firstValue - delta;
-		// if (value < model.getMinimum()) {
-		// value = model.getMinimum();
-		// }
 		setValue(value);
-		// model.setExtent(secondValue - value);
 		repaint();
 		break;
 	    }
@@ -166,7 +160,7 @@ public class JRangeSlider extends JPanel {
 	    pressY = e.getY();
 	    firstValue = model.getValue();
 	    modelExtent = model.getExtent();
-//	    secondValue = model.getValue() + model.getExtent();
+	    // secondValue = model.getValue() + model.getExtent();
 	}
     }
 
@@ -178,6 +172,7 @@ public class JRangeSlider extends JPanel {
     private float scaleX, scaleY;
 
     private JSlider slider = new JSlider();
+    private int minExtent;
 
     private Function<Integer, Integer> function = new Function<Integer, Integer>() {
 	public Integer apply(Integer t) {
@@ -236,15 +231,39 @@ public class JRangeSlider extends JPanel {
     }
 
     public void setValue(int i) {
-	i = clamp(getFunction().apply(i));
+	i = clamp(getFunction().apply(i), minExtent);
 	// keep second value
 	int secondValue = model.getValue() + model.getExtent();
 	int extent = secondValue - i;
+	if (extent < minExtent) {
+	    extent = minExtent;
+	}
+	model.setRangeProperties(i, extent, model.getMinimum(), model.getMaximum(), false);
+    }
+    
+    public void setValue(int i, int extent) {
+	i = clamp(getFunction().apply(i), extent);
+	// keep second value
+	if (extent < minExtent) {
+	    extent = minExtent;
+	}
 	model.setRangeProperties(i, extent, model.getMinimum(), model.getMaximum(), false);
     }
 
-    private int clamp(int i) {
-	int max = model.getMaximum();
+
+    public int getMinExtent() {
+	return minExtent;
+    }
+
+    public void setMinExtent(int minExtent) {
+	this.minExtent = minExtent;
+	if (model.getExtent() < minExtent) {
+	    model.setExtent(minExtent);
+	}
+    }
+
+    private int clamp(int i, int minExtent) {
+	int max = model.getMaximum() - minExtent;
 	if (i > max) {
 	    i = max;
 	}
@@ -260,10 +279,9 @@ public class JRangeSlider extends JPanel {
     }
 
     public void setSecondValue(int i) {
-	i = clamp(getFunction().apply(i));
-
+	i = clamp(getFunction().apply(i), minExtent);
 	int v = model.getValue();
-	model.setExtent(i - v);
+	model.setExtent(Math.max(minExtent, i - v));
     }
 
     public Function<Integer, Integer> getFunction() {
