@@ -551,6 +551,29 @@ public class JRangeSlider extends JPanel {
     }
 
     public static void main(String... s) {
+	
+	
+	int diameter = 11;
+	
+	int[][] indexes = new int[diameter][diameter];
+
+	for (int y = 0; y < diameter; y++) {
+	    for (int x = 0; x < diameter; x++) {
+		indexes[y][x] = (x + y) % diameter;
+	    }
+	}
+	
+	for (int i = 0; i < indexes.length; i++) {
+	    int[] fs = indexes[i];
+	    for (int j = 0; j < fs.length; j++) {
+		System.out.print(indexes[i][j]);
+		System.out.print(" ");
+	    }
+		System.out.println();
+	}
+	
+	System.exit(0);
+	
 	JFrame frame = new JFrame();
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	frame.getContentPane().setLayout(new FlowLayout());

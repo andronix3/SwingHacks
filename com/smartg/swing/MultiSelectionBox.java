@@ -2,12 +2,8 @@ package com.smartg.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,7 +57,7 @@ public class MultiSelectionBox<T> extends JPanel {
 
 	XListModel<T> listModel = new XListModel<>();
 	list.setModel(listModel);
-	
+
 	if (renderer != null) {
 	    box.setRenderer(renderer);
 	    list.setCellRenderer(renderer);
@@ -108,66 +104,11 @@ public class MultiSelectionBox<T> extends JPanel {
 	});
     }
 
-    /**
-     * FlowLayout returns incorrect preferredSize, because it ignores width of
-     * target Container, so targets parent can't compute correct height.
-     * 
-     * @author andro
-     *
-     */
-    static class FlowL extends FlowLayout {
-
-	private static final long serialVersionUID = 6046127399548228005L;
-
-	public FlowL(int align, int hgap, int vgap) {
-	    super(align, hgap, vgap);
-	}
-
-	@Override
-	public Dimension preferredLayoutSize(Container target) {
-	    Dimension ps = super.preferredLayoutSize(target);
-	    Insets insets = target.getInsets();
-	    int w = target.getWidth();
-	    w -= insets.left + insets.right;
-	    float m = ps.width / (float) w;
-	    if (m > 1) {
-		ps.width = w;
-		ps.height = ps.height * Math.round(m + 0.5f);
-	    }
-	    return ps;
-	}
-    }
-
-    static final class SimpleCloseIcon implements Icon {
-	private final Font font = new Font("Dialog", Font.BOLD, 12);
-
-	@Override
-	public void paintIcon(Component c, Graphics g, int x, int y) {
-	    Font fnt = g.getFont();
-	    g.setFont(font);
-	    String s = "x";
-	    int sw = g.getFontMetrics().stringWidth(s);
-	    int sh = g.getFontMetrics().getHeight();
-	    g.drawString(s, x + (getIconWidth() - sw) / 2, y + (getIconHeight() + sh / 2) / 2);
-	    g.setFont(fnt);
-	}
-
-	@Override
-	public int getIconWidth() {
-	    return 15;
-	}
-
-	@Override
-	public int getIconHeight() {
-	    return 15;
-	}
-    }
-
     private static final long serialVersionUID = -5751711899713905904L;
 
     private Border labelBorder = new EtchedBorder();
 
-    private Icon closeIcon = new MultiSelectionBox.SimpleCloseIcon();
+    private Icon closeIcon = new SimpleCloseIcon();
     private final HashMap<T, JLabel> map = new HashMap<>();
 
     private final ArrayList<T> selectedItems = new ArrayList<>();
@@ -179,7 +120,7 @@ public class MultiSelectionBox<T> extends JPanel {
     private JButton arrowButton;
 
     public MultiSelectionBox() {
-	setLayout(new MultiSelectionBox.FlowL(FlowLayout.LEFT, 5, 10));
+	setLayout(new GFlowLayout(FlowLayout.LEFT, 5, 10));
 	viewport = new JViewport();
 	viewport.setView(comboBox);
 	viewport.setPreferredSize(new Dimension(20, 20));
@@ -387,6 +328,27 @@ public class MultiSelectionBox<T> extends JPanel {
 	// frame2.pack();
 	// frame2.setVisible(true);
 	// }
+
+	EmailPanel emailPanel = new EmailPanel();
+	String[] email = { "andronix@gmx.net", "bobr@reedphoto.com", "craigf@reedphoto.com", "cyndys@reedphoto.com",
+		"dairad@reedphoto.com", "daniel.arguello@reedphoto.com", "danr@reedphoto.com", "danw@reedphoto.com",
+		"david.arguello@reedphoto.com", "garyr@reedphoto.com", "greg.bishop@reedphoto.com",
+		"jodya@reedphoto.com", "johnheneman@yahoo.com", "justin.key@reedphoto.com", "kellyr@reedphoto.com",
+		"kevanvalenzuela@gmail.com", "kimr@kkdrealestate.com", "steve.higgins@reedphoto.com",
+		"thetrev@comcast.net", "victor.gloria@jeffmitchum.com" };
+
+	{
+	    JFrame frame2 = new JFrame();
+	    frame2.getContentPane().add(emailPanel);
+
+	    frame2.setSize(200, 200);
+	    for (String s : email) {
+		emailPanel.addEmail(s);
+	    }
+	    frame2.pack();
+	    frame2.setVisible(true);
+
+	}
 
 	MultiSelectionBox<String> msbox = new MultiSelectionBox<>();
 	List<String> asList = Arrays.asList(labels);
