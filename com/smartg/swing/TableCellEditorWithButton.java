@@ -42,8 +42,7 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
 	root.add(buttonNode);
 	panel.add(button, new NodeConstraints("button"));
 
-	//textField.setPreferredSize(new Dimension(100, 20));
-	textField.setHorizontalAlignment(SwingUtilities.LEFT);
+	textField.setHorizontalAlignment(SwingUtilities.RIGHT);
 
 	root.setHorizontalAlignment(NodeAlignment.STRETCHED);
 	layout.setHorizontalAlignment(textField, NodeAlignment.STRETCHED);
@@ -92,7 +91,7 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
 	String string = String.valueOf(value);
 	textField.setText(string);
 	button.setText("...");
-	button.setVisible(showButton(table, value, isSelected));
+	button.setVisible(showButton(table, value, isSelected, row, column));
 	if (isSelected) {
 	    panel.setBackground(table.getSelectionBackground());
 	} else {
@@ -101,7 +100,7 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
 	return panel;
     }
 
-    protected abstract boolean showButton(JTable table, Object value, boolean isSelected);
+    protected abstract boolean showButton(JTable table, Object value, boolean isSelected, int row, int column);
 
     public JButton getButton() {
 	return button;

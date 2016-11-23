@@ -32,7 +32,7 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 	panel.add(button, new NodeConstraints("button"));
 
 	//label.setPreferredSize(new Dimension(100, 20));
-	label.setHorizontalAlignment(SwingUtilities.LEFT);
+	label.setHorizontalAlignment(SwingUtilities.RIGHT);
 
 	root.setHorizontalAlignment(NodeAlignment.STRETCHED);
 	layout.setHorizontalAlignment(label, NodeAlignment.STRETCHED);
@@ -48,7 +48,7 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 	}
 	label.setText(string);
 	button.setText("...");
-	button.setVisible(showButton(table, string, isSelected, hasFocus));
+	button.setVisible(showButton(table, string, isSelected, hasFocus, row, column));
 	if (isSelected) {
 	    panel.setBackground(table.getSelectionBackground());
 	} else {
@@ -57,7 +57,7 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 	return panel;
     }
 
-    protected abstract boolean showButton(JTable table, Object value, boolean isSelected, boolean hasFocus);
+    protected abstract boolean showButton(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column);
 
     public JButton getButton() {
 	return button;
