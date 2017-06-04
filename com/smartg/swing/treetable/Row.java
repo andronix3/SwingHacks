@@ -6,67 +6,67 @@ import java.util.List;
 
 public class Row implements Serializable {
 
-    private static final long serialVersionUID = 8925551346210586101L;
-    
-    private int rowNumber;
-    private List<Object> data;
-    private final Integer id = new Object().hashCode();
-    private Integer parentId;
+	private static final long serialVersionUID = 8925551346210586101L;
 
-    public Row(int rowNumber, Object[] data) {
-	this.rowNumber = rowNumber;
-	this.data = Arrays.asList(data);
-    }
+	private int rowNumber;
+	private List<Object> data;
+	private final Integer id = new Object().hashCode();
+	private Integer parentId;
 
-    public Integer getRowNumber() {
-	return rowNumber;
-    }
-
-    public List<Object> getData() {
-	return data;
-    }
-
-    public Integer getId() {
-	return id;
-    }
-
-    public Integer getParentId() {
-	return parentId;
-    }
-
-    public void setParentId(Integer parentId) {
-	if(parentId == id) {
-	    throw new IllegalArgumentException();
+	public Row(int rowNumber, Object[] data) {
+		this.rowNumber = rowNumber;
+		this.data = Arrays.asList(data);
 	}
-	this.parentId = parentId;
-    }
 
-    @Override
-    public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + ((data == null) ? 0 : data.hashCode());
-	result = prime * result + rowNumber;
-	return result;
-    }
+	public Integer getRowNumber() {
+		return rowNumber;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
-	if (obj == null)
-	    return false;
-	if (getClass() != obj.getClass())
-	    return false;
-	Row other = (Row) obj;
-	if (data == null) {
-	    if (other.data != null)
-		return false;
-	} else if (!data.equals(other.data))
-	    return false;
-	if (rowNumber != other.rowNumber)
-	    return false;
-	return true;
-    }
+	public List<Object> getData() {
+		return data;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public Integer getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Integer parentId) {
+		if (parentId == id) {
+			throw new IllegalArgumentException();
+		}
+		this.parentId = parentId;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((data == null) ? 0 : data.hashCode());
+		result = prime * result + rowNumber;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Row other = (Row) obj;
+		if (data == null) {
+			if (other.data != null)
+				return false;
+		} else if (!data.equals(other.data))
+			return false;
+		if (rowNumber != other.rowNumber)
+			return false;
+		return true;
+	}
 
 }

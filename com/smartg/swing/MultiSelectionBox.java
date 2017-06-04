@@ -51,7 +51,7 @@ import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
 public class MultiSelectionBox<T> extends JPanel {
 
     public static <T> void init(JScrollPane jsp, JComboBox<T> box, JList<T> list, ListCellRenderer<T> renderer,
-	    List<T> elements, ArrayList<T> selectedItems) {
+	    List<T> elements, List<T> selectedItems) {
 	XListModel<T> boxModel = new XListModel<>();
 	box.setModel(boxModel);
 

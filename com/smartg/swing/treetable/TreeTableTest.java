@@ -1,12 +1,13 @@
 package com.smartg.swing.treetable;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
 
 public class TreeTableTest {
 
@@ -28,26 +29,28 @@ public class TreeTableTest {
 
 	TreeTableModel model = new TreeTableModel(rows, new Object[] { "A", "B", "C", "D", "E" });
 	JTable table = new JTable(model);
-	BufferedImage b1 = new BufferedImage(11, 11, BufferedImage.TYPE_4BYTE_ABGR);
-	Graphics2D g = b1.createGraphics();
-	g.setColor(new Color(255, 255, 255, 0));
-	g.fillRect(0, 0, 11, 11);
-	g.setColor(Color.DARK_GRAY);
-	g.drawLine(0, 5, 10, 5);
-	g.drawLine(5, 0, 5, 10);
-	g.drawRect(0, 0, 10, 10);
-
-	BufferedImage b2 = new BufferedImage(11, 11, BufferedImage.TYPE_4BYTE_ABGR);
-	g = b2.createGraphics();
-	g.setColor(new Color(255, 255, 255, 0));
-	g.fillRect(0, 0, 11, 11);
-	g.setColor(Color.DARK_GRAY);
-	g.drawLine(0, 5, 10, 5);
-	g.drawRect(0, 0, 10, 10);
 	
-	table.getColumnModel().getColumn(0).setCellRenderer(new FirstColumnRenderer(model, b1, b2));
-	table.addMouseListener(new FoldHandler(table));
-
+	DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+	table.getColumnModel().getColumn(0).setCellRenderer(new FirstColumnRenderer(model, renderer, SwingUtilities.LEFT));	
+	
+	FirstColumnEditor cellEditor = new FirstColumnEditor(model, SwingUtilities.LEFT);
+	table.getColumnModel().getColumn(0).setCellEditor(cellEditor);
+	
+	cellEditor.getButton().addActionListener(new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int selectedRow = table.getSelectedRow();
+			boolean collapsed = model.isCollapsed(selectedRow);
+			if(collapsed) {
+				model.expandRow(selectedRow);
+			}
+			else {
+				model.collapseRow(selectedRow);
+			}
+		}
+	});
+	
 	JFrame frame = new JFrame();
 	frame.getContentPane().add(new JScrollPane(table));
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
