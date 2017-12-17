@@ -115,8 +115,8 @@ public class TreeTableModel extends AbstractTableModel {
 	
 	public Row deleteRow(int rowIndex) {
         TreeRow treeRow = this.getTreeRow(rowIndex);
-        this.dataVector.remove((Object)treeRow);
-        this.visibleRows.remove((Object)treeRow);
+        this.dataVector.remove(treeRow);
+        this.visibleRows.remove(treeRow);
         this.rowsById.remove(treeRow.getRow().getId());
         this.rowsByNumber.remove(treeRow.getRow().getRowNumber());
         this.fireTableRowsDeleted(rowIndex, rowIndex);

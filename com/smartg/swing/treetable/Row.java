@@ -22,6 +22,10 @@ public class Row implements Serializable {
 		return rowNumber;
 	}
 
+	public void setRowNumber(int rowNumber) {
+		this.rowNumber = rowNumber;
+	}
+
 	public List<Object> getData() {
 		return data;
 	}
