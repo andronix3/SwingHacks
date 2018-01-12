@@ -24,6 +24,12 @@ import com.smartg.swing.layout.JNodeLayout;
 import com.smartg.swing.layout.LayoutNode;
 import com.smartg.swing.layout.NodeConstraints;
 
+/**
+ * This class will allow to add JLabels with email address and a close button to a panel
+ * 
+ * @author User
+ *
+ */
 public class EmailPanel extends JPanel implements Iterable<String> {
     private static final long serialVersionUID = 2427218884711848540L;
 
@@ -118,7 +124,8 @@ public class EmailPanel extends JPanel implements Iterable<String> {
 	return false;
     }
 
-    public Iterator<String> iterator() {
+    @Override
+	public Iterator<String> iterator() {
 	return list.keySet().iterator();
     }
 
