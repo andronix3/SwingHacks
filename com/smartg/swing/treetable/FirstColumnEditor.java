@@ -1,6 +1,5 @@
 package com.smartg.swing.treetable;
 
-import com.smartg.swing.TableCellEditorWithButton;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -9,6 +8,8 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+
+import com.smartg.swing.table.TableCellEditorWithButton;
 
 public class FirstColumnEditor extends TableCellEditorWithButton {
 	private static final long serialVersionUID = -2213519055045903729L;

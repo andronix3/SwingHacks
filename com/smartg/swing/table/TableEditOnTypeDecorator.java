@@ -1,4 +1,4 @@
-package com.smartg.swing;
+package com.smartg.swing.table;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;

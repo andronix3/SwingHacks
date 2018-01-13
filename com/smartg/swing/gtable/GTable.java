@@ -1,4 +1,4 @@
-package com.smartg.swing.table;
+package com.smartg.swing.gtable;
 
 import java.awt.Rectangle;
 import java.util.Vector;

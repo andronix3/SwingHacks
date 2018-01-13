@@ -1,4 +1,4 @@
-package com.smartg.swing;
+package com.smartg.swing.table;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import com.smartg.swing.NullMarginButton;
 import com.smartg.swing.layout.JNodeLayout;
 import com.smartg.swing.layout.LayoutNode;
 import com.smartg.swing.layout.NodeAlignment;

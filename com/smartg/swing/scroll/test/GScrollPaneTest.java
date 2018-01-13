@@ -36,12 +36,12 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTable;
 
+import com.smartg.swing.gtable.GTableHorizontalValueVerifier;
+import com.smartg.swing.gtable.GTableScrollBarToolTipTextSupplier;
+import com.smartg.swing.gtable.GTableVerticalValueVerifier;
 import com.smartg.swing.scroll.Actions;
 import com.smartg.swing.scroll.GBoundedRangeModel;
 import com.smartg.swing.scroll.GScrollPane;
-import com.smartg.swing.table.GTableHorizontalValueVerifier;
-import com.smartg.swing.table.GTableScrollBarToolTipTextSupplier;
-import com.smartg.swing.table.GTableVerticalValueVerifier;
 
 /**
  * @author Andrey Kuznetsov

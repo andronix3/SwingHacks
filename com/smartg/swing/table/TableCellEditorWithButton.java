@@ -1,4 +1,4 @@
-package com.smartg.swing;
+package com.smartg.swing.table;
 
 import java.awt.Component;
 import java.text.ParseException;
@@ -14,6 +14,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import com.smartg.java.util.StackTraceUtil;
+import com.smartg.swing.NullMarginButton;
 import com.smartg.swing.layout.JNodeLayout;
 import com.smartg.swing.layout.LayoutNode;
 import com.smartg.swing.layout.NodeAlignment;

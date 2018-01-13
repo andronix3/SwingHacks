@@ -10,7 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import com.smartg.swing.TableCellRendererWithButton;
+import com.smartg.swing.table.TableCellRendererWithButton;
 
 public class FirstColumnRenderer extends TableCellRendererWithButton {
 	private HandleIcon collapsedIcon;
