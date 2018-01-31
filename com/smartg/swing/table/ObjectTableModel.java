@@ -1,27 +1,28 @@
 package com.smartg.swing.table;
 
-
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import com.smartg.java.util.StackTraceUtil;
+import java.util.ArrayList;
 
 /**
- * Each row in this table model represents an Object of specified type.
- * To make this usable we have to implement setValueAt and getValueAt methods.
+ * Each row in this table model represents an Object of specified type. To make
+ * this usable we have to implement setValueAt and getValueAt methods.
+ *
  * @author User
  * @param <T>
  */
 public abstract class ObjectTableModel<T> extends AbstractTableModel {
 
-	private static final long serialVersionUID = 2194853209085099103L;
-	
-	private List<T> data;
+    private static final long serialVersionUID = 2194853209085099103L;
+
+    private List<T> data;
     private String[] columnNames;
     @SuppressWarnings("rawtypes")
-	private Class[] types;
+    private Class[] types;
     private Boolean[] editable;
     private final Class<? extends T> classe;
 
@@ -50,12 +51,15 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
     }
 
     public void setData(List<T> data) {
-        this.data = data;
+        this.data = new ArrayList<>(data);
         fireTableDataChanged();
     }
 
     public T getRow(int index) {
-        return data.get(index);
+        if (index < data.size()) {
+            return data.get(index);
+        }
+        return null;
     }
 
     public final T createRow() {
@@ -78,12 +82,13 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
         fireTableDataChanged();
         return row;
     }
-    
+
     /**
-     * Sometimes Objects need specific initialization.
-     * This method will be called just after createRow();
+     * Sometimes Objects need specific initialization. This method will be
+     * called just after createRow();
+     *
      * @param row
-     * @return 
+     * @return
      */
     protected T initRow(T row) {
         return row;
@@ -91,16 +96,21 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
 
     public void addRow(T row) {
         data.add(row);
-        fireTableDataChanged();
+        fireTableRowsInserted(data.size() - 1, data.size() - 1);
     }
-    
+
     public void addRow(int index, T row) {
         data.add(index, row);
-        fireTableDataChanged();
+        fireTableRowsInserted(data.size() - 1, data.size() - 1);
     }
-    
+
+    public int indexOf(T row) {
+        return getData().indexOf(row);
+    }
+
     /**
      * Replace row at given index with new one
+     *
      * @param index index of element to replace
      * @param row replacement
      * @return replaced element
@@ -113,8 +123,12 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
 
     public T deleteRow(int i) {
         T remove = data.remove(i);
-        fireTableDataChanged();
+        fireTableRowsDeleted(i, i);
         return remove;
+    }
+
+    public boolean isEmpty() {
+        return data == null || data.isEmpty();
     }
 
     public boolean moveUp(int index) {
@@ -179,6 +193,10 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
     }
 
     public void clear() {
-        data.clear();
+        int size = getRowCount();
+        if (size > 0) {
+            data.clear();
+            fireTableRowsDeleted(0, size - 1);
+        }
     }
 }

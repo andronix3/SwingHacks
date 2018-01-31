@@ -32,38 +32,39 @@ import com.imagero.java.beans.SimplePropertyHandler;
  * or set it as PropertyChangeListener and fire PropertyChangeEvents with
  * appropriate property names: title, string, prefix, value, min, max. It is
  * possible to add user defined properties.
- * 
+ *
  * Example:
- * <pre>
  * 
+ * <pre>
+ *
  * public class MyProcessor implements Runnable {
  * 		private final PropertyChangeSupport support = new PropertyChangeSupport(this);
- * 
+ *
  * 		public void addPropertyChangeListener(PropertyChangeListener pl) {
  * 			support.addPropertyChangeListener(pl);
  * 		}
- * 
+ *
  * 		public void run() {
  * 			...
  * 		}
  * }
- * 
+ *
  * public static void main(String [] args) {
- * 
+ *
  * 		final ProgressFrontend frontend = new ProgressFrontend(null);
- * 		
+ *
  * 		try {
  * 			MyProcessor processor = new MyProcessor();
- * 
+ *
  * 			processor.addPropertyChangeListener(frontend);
  *
  *           new Thread() {
- *               @Override
+ *               &#64;Override
  *               public void run() {
  *                   processor.run();
  *               }
  *           }.start();
- *           
+ *
  *           frontend.setExitOnClose(true);
  *           frontend.showProgressBar(600, 200);
  *       } catch (IOException ex) {
@@ -72,10 +73,11 @@ import com.imagero.java.beans.SimplePropertyHandler;
  *           StackTraceUtil.severe(ex, 20);
  *       }
  * }
- * 
- * 
  *
- *</pre>
+ *
+ *
+ * </pre>
+ *
  * @author User
  */
 public class ProgressFrontend implements PropertyChangeListener {
@@ -89,6 +91,7 @@ public class ProgressFrontend implements PropertyChangeListener {
 	private final HandlerList handlerList = new HandlerList();
 	private boolean exitOnClose;
 	private boolean askBeforeClosing = true;
+	private String unitName = "unit";
 
 	public ProgressFrontend(Component c) {
 		if (c == null) {
@@ -110,7 +113,8 @@ public class ProgressFrontend implements PropertyChangeListener {
 				count = 1;
 			}
 			long timePerRow = elapsed / count;
-			progressBar.setString(prefix + " " + value + " of " + model.getMaximum() + " (" + timePerRow + " ms/row)");
+			progressBar.setString(
+					prefix + " " + value + " of " + model.getMaximum() + " (" + timePerRow + " ms/" + unitName + ")");
 		});
 
 		setHandler("title", t -> setTitle("" + t));
@@ -120,6 +124,7 @@ public class ProgressFrontend implements PropertyChangeListener {
 		setHandler("min", t -> setMinimum((Integer) t));
 		setHandler("max", t -> setMaximum((Integer) t));
 		setHandler("finished", t -> setFinished());
+		setHandler("unit", t -> setUnitName((String) t));
 	}
 
 	/**
@@ -145,6 +150,22 @@ public class ProgressFrontend implements PropertyChangeListener {
 		} else if (frame instanceof Dialog) {
 			((Dialog) frame).setTitle(title);
 		}
+	}
+
+	/**
+	 * get unit name 
+	 * @return
+	 */
+	public String getUnitName() {
+		return unitName;
+	}
+
+	/**
+	 * set unit name (used to show speed in ms per unit)
+	 * @param unitName
+	 */
+	public void setUnitName(String unitName) {
+		this.unitName = unitName;
 	}
 
 	/**
@@ -185,7 +206,7 @@ public class ProgressFrontend implements PropertyChangeListener {
 	}
 
 	public void setFinished() {
-		setFinished("Processing successful");
+		setFinished("Processing finished");
 	}
 
 	public void setFinished(String message) throws HeadlessException {
@@ -233,13 +254,12 @@ public class ProgressFrontend implements PropertyChangeListener {
 			}
 		});
 		frame.pack();
-		if(owner == null) {
+		if (owner == null) {
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			frame.setBounds((screenSize.width - width) / 2, (screenSize.height - height) / 2, width, height);
-		}
-		else {
+		} else {
 			frame.setSize(width, height);
-            frame.setLocationRelativeTo(owner);
+			frame.setLocationRelativeTo(owner);
 		}
 		frame.setVisible(true);
 	}
