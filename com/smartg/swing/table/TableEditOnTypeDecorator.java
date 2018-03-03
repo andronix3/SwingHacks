@@ -1,6 +1,9 @@
 package com.smartg.swing.table;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
@@ -14,65 +17,82 @@ import javax.swing.text.JTextComponent;
 
 public class TableEditOnTypeDecorator {
 
-    public static void decorate(JTable table) {
-        new TableEditOnTypeDecorator(table);
-    }
+	public static void decorate(JTable table) {
+		new TableEditOnTypeDecorator(table);
+	}
 
-    private final JTable table;
-    private InputMap inputMap;
-    private ActionMap actionMap;
+	private final JTable table;
+	private InputMap inputMap;
+	private ActionMap actionMap;
+	private FocusLostHandler focusLostHandler = new FocusLostHandler();
 
-    public TableEditOnTypeDecorator(JTable table) {
-        this.table = table;
+	public TableEditOnTypeDecorator(JTable table) {
+		this.table = table;
 
-        inputMap = table.getInputMap(JTable.WHEN_FOCUSED);
-        actionMap = table.getActionMap();
+		inputMap = table.getInputMap(JTable.WHEN_FOCUSED);
+		actionMap = table.getActionMap();
 
-        table.setSurrendersFocusOnKeystroke(true);
+		table.setSurrendersFocusOnKeystroke(true);
 
-        for (int i = KeyEvent.VK_0; i <= KeyEvent.VK_9; i++) {
-            registerAction(i, (char) i, 0);
-        }
-        for (int i = KeyEvent.VK_NUMPAD0; i <= KeyEvent.VK_NUMPAD9; i++) {
-            registerAction(i, (char) (KeyEvent.VK_0 - KeyEvent.VK_NUMPAD0 + i), 0);
-        }
-        for (int i = KeyEvent.VK_A; i <= KeyEvent.VK_Z; i++) {
-            registerAction(i, Character.toLowerCase((char) i), 0);
-            registerAction(i, Character.toUpperCase((char) i), KeyEvent.SHIFT_DOWN_MASK);
-        }
-    }
+		for (int i = KeyEvent.VK_0; i <= KeyEvent.VK_9; i++) {
+			registerAction(i, (char) i, 0);
+		}
+		for (int i = KeyEvent.VK_NUMPAD0; i <= KeyEvent.VK_NUMPAD9; i++) {
+			registerAction(i, (char) (KeyEvent.VK_0 - KeyEvent.VK_NUMPAD0 + i), 0);
+		}
+		for (int i = KeyEvent.VK_A; i <= KeyEvent.VK_Z; i++) {
+			registerAction(i, Character.toLowerCase((char) i), 0);
+			registerAction(i, Character.toUpperCase((char) i), KeyEvent.SHIFT_DOWN_MASK);
+		}
+	}
 
-    private void registerAction(int vk, char c, int modifiers) {
-        KeyStroke ks = KeyStroke.getKeyStroke(vk, modifiers);
-        String name = "LetterAction#" + c + "" + modifiers;
-        inputMap.put(ks, name);
-        actionMap.put(name, new StartEditAction("" + c));
-    }
+	private void registerAction(int vk, char c, int modifiers) {
+		KeyStroke ks = KeyStroke.getKeyStroke(vk, modifiers);
+		String name = "LetterAction#" + c + "" + modifiers;
+		inputMap.put(ks, name);
+		actionMap.put(name, new StartEditAction("" + c));
+	}
+	
+	private static class FocusLostHandler extends FocusAdapter {
 
-    private class StartEditAction extends AbstractAction {
+		@Override
+		public void focusLost(FocusEvent e) {
+			e.getComponent().removeFocusListener(this);
+			JTextComponent tc = (JTextComponent) e.getComponent();
+			tc.putClientProperty("ExcludeTextFieldSelectAll", null);
+		}		
+	}
 
-        private static final long serialVersionUID = 1198439978810227447L;
-        private final String action;
+	private class StartEditAction extends AbstractAction {
 
-        public StartEditAction(String action) {
-            this.action = action;
-        }
+		private static final long serialVersionUID = 1198439978810227447L;
+		private final String action;
 
-        @Override
-        public void actionPerformed(ActionEvent evt) {
-            if (!table.isEditing()) {
-                int selectedColumn = table.getSelectedColumn();
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow >= 0 && selectedColumn >= 0 && table.isCellEditable(selectedRow, selectedColumn)) {
-                    if (table.editCellAt(selectedRow, selectedColumn)) {
-                        DefaultCellEditor cellEditor = (DefaultCellEditor) table.getCellEditor();
-                        JTextComponent component = (JTextComponent) cellEditor.getComponent();
-                        SwingUtilities.invokeLater(() -> {
-                            component.setText(action);
-                        });
-                    }
-                }
-            }
-        }
-    }
+		public StartEditAction(String action) {
+			this.action = action;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			if (table.isEditing()) {
+				table.getCellEditor().cancelCellEditing();
+			}
+
+			// if (!table.isEditing()) {
+			int selectedColumn = table.getSelectedColumn();
+			int selectedRow = table.getSelectedRow();
+			if (selectedRow >= 0 && selectedColumn >= 0 && table.isCellEditable(selectedRow, selectedColumn)) {
+				if (table.editCellAt(selectedRow, selectedColumn)) {
+					DefaultCellEditor cellEditor = (DefaultCellEditor) table.getCellEditor();
+					JTextComponent component = (JTextComponent) cellEditor.getComponent();
+					component.putClientProperty("ExcludeTextFieldSelectAll", Boolean.TRUE);
+					component.addFocusListener(focusLostHandler);
+					SwingUtilities.invokeLater(() -> {
+						component.setText(action);
+					});
+				}
+			}
+			// }
+		}
+	}
 }

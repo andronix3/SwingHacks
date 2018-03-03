@@ -1,12 +1,13 @@
 package com.smartg.swing.table;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import com.smartg.java.util.StackTraceUtil;
-import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Each row in this table model represents an Object of specified type. To make
@@ -19,7 +20,7 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
 
     private static final long serialVersionUID = 2194853209085099103L;
 
-    private List<T> data;
+    private List<T> data = new ArrayList<>();
     private String[] columnNames;
     @SuppressWarnings("rawtypes")
     private Class[] types;
@@ -51,7 +52,8 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
     }
 
     public void setData(List<T> data) {
-        this.data = new ArrayList<>(data);
+        Objects.requireNonNull(data);
+        this.data = data;
         fireTableDataChanged();
     }
 
@@ -171,20 +173,26 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return types[columnIndex];
+    	if(types != null) {
+    		return types[columnIndex];
+    	}
+    	return super.getColumnClass(columnIndex);
     }
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (editable == null || editable.length <= columnIndex) {
-            return false;
+        if (editable != null) {
+            return editable[columnIndex];
         }
-        return editable[columnIndex];
+        return super.isCellEditable(rowIndex, columnIndex);
     }
 
     @Override
     public String getColumnName(int col) {
-        return columnNames[col];
+    	if(columnNames != null) {
+    		return columnNames[col];
+    	}
+    	return super.getColumnName(col);
     }
 
     @Override

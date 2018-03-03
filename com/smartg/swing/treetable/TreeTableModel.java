@@ -1,5 +1,7 @@
 package com.smartg.swing.treetable;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -8,7 +10,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.swing.Icon;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 
 public class TreeTableModel extends AbstractTableModel {
 
@@ -112,16 +118,16 @@ public class TreeTableModel extends AbstractTableModel {
 	public int getColumnCount() {
 		return columnNames.size();
 	}
-	
+
 	public Row deleteRow(int rowIndex) {
-        TreeRow treeRow = this.getTreeRow(rowIndex);
-        this.dataVector.remove(treeRow);
-        this.visibleRows.remove(treeRow);
-        this.rowsById.remove(treeRow.getRow().getId());
-        this.rowsByNumber.remove(treeRow.getRow().getRowNumber());
-        this.fireTableRowsDeleted(rowIndex, rowIndex);
-        return treeRow.getRow();
-    }
+		TreeRow treeRow = this.getTreeRow(rowIndex);
+		this.dataVector.remove(treeRow);
+		this.visibleRows.remove(treeRow);
+		this.rowsById.remove(treeRow.getRow().getId());
+		this.rowsByNumber.remove(treeRow.getRow().getRowNumber());
+		this.fireTableRowsDeleted(rowIndex, rowIndex);
+		return treeRow.getRow();
+	}
 
 	@Override
 	public String getColumnName(int column) {
@@ -185,15 +191,14 @@ public class TreeTableModel extends AbstractTableModel {
 			setCollapsed(tr, false);
 		}
 	}
-	
+
 	@Override
 	public boolean isCellEditable(int row, int column) {
-		if(column != 0) {
+		if (column != 0) {
 			return false;
 		}
 		return !isLeaf(row);
 	}
-
 
 	private void setCollapsed(TreeRow tr, boolean collapsed) {
 		if (!tr.isLeaf()) {
@@ -229,6 +234,80 @@ public class TreeTableModel extends AbstractTableModel {
 				}
 				fireTableRowsInserted(indexOf, indexOf + count);
 			}
+		}
+	}
+
+	public void installFirstColumnRenderer(Builder builder) {
+		builder.table.getColumnModel().getColumn(0).setCellRenderer(new FirstColumnRenderer(this, builder.renderer,
+				builder.collapsedIcon, builder.expandedIcon, builder.align));
+
+		FirstColumnEditor cellEditor = new FirstColumnEditor(this, builder.collapsedIcon, builder.expandedIcon, builder.align);
+		builder.table.getColumnModel().getColumn(0).setCellEditor(cellEditor);
+
+		cellEditor.getButton().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int selectedRow = builder.table.getSelectedRow();
+				boolean collapsed = TreeTableModel.this.isCollapsed(selectedRow);
+				if (collapsed) {
+					TreeTableModel.this.expandRow(selectedRow);
+				} else {
+					TreeTableModel.this.collapseRow(selectedRow);
+				}
+			}
+		});
+	}
+
+	public static class Builder {
+		private JTable table;
+		private TableCellRenderer renderer;
+		private Icon collapsedIcon = HandleIcon.getCollapsedImage();
+		private Icon expandedIcon = HandleIcon.getExpandedImage();
+		private int align = SwingUtilities.LEFT;
+
+		public JTable getTable() {
+			return table;
+		}
+
+		public Builder setTable(JTable table) {
+			this.table = table;
+			return this;
+		}
+
+		public TableCellRenderer getRenderer() {
+			return renderer;
+		}
+
+		public Builder setRenderer(TableCellRenderer renderer) {
+			this.renderer = renderer;
+			return this;
+		}
+
+		public Icon getCollapsedIcon() {
+			return collapsedIcon;
+		}
+
+		public Builder setCollapsedIcon(Icon collapsedIcon) {
+			this.collapsedIcon = collapsedIcon;
+			return this;
+		}
+
+		public Icon getExpandedIcon() {
+			return expandedIcon;
+		}
+
+		public Builder setExpandedIcon(Icon expandedIcon) {
+			this.expandedIcon = expandedIcon;
+			return this;
+		}
+
+		public int getAlign() {
+			return align;
+		}
+
+		public Builder setAlign(int align) {
+			this.align = align;
+			return this;
 		}
 	}
 }
