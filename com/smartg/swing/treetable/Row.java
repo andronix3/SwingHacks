@@ -25,9 +25,13 @@ public class Row implements Serializable {
 	public void setRowNumber(int rowNumber) {
 		this.rowNumber = rowNumber;
 	}
-
-	public List<Object> getData() {
-		return data;
+	
+	public void setValueAt(Object value, int column) {
+		data.set(column, value);
+	}
+	
+	public Object getValueAt(int column) {
+		return data.get(column);
 	}
 
 	public Integer getId() {

@@ -106,14 +106,18 @@ public class TreeTableModel extends AbstractTableModel {
 		return visibleRows.size();
 	}
 
+	public Row getRow(int rowIndex) {
+		return visibleRows.get(rowIndex).getRow();
+	}
+
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return visibleRows.get(rowIndex).getRow().getData().get(columnIndex);
+		return visibleRows.get(rowIndex).getRow().getValueAt(columnIndex);
 	}
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		visibleRows.get(rowIndex).getRow().getData().set(columnIndex, aValue);
+		visibleRows.get(rowIndex).getRow().setValueAt(aValue, columnIndex);
 	}
 
 	@Override
@@ -203,6 +207,11 @@ public class TreeTableModel extends AbstractTableModel {
 			}
 		}
 		return -1;
+	}
+
+	public Row[] getChildren(int parent) {
+		Integer id = getRow(parent).getId();
+		return rowsById.values().stream().filter(p -> p.getParent().getRow().getId().equals(id)).toArray(Row[]::new);
 	}
 
 	@Override
