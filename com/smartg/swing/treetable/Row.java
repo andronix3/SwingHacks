@@ -27,20 +27,20 @@ public class Row implements Serializable {
 		this.data = Arrays.asList(data);
 	}
 
-	public void addTableModelListener(TableModelListener l) {
-		new AddToList(listenerList).add(TableModelListener.class, l);
+	public void addRowListener(RowListener l) {
+		new AddToList(listenerList).add(RowListener.class, l);
 	}
 
-	public void removeTableModelListener(TableModelListener l) {
-		listenerList.remove(TableModelListener.class, l);
+	public void removeTableModelListener(RowListener l) {
+		listenerList.remove(RowListener.class, l);
 	}
 
 	public void fireTableCellUpdated(int column) {
-		TableModelEvent e = new TableModelEvent(null, rowNumber, rowNumber, column);
-		EventListenerListIterator<TableModelListener> iterator = new EventListenerListIterator<>(
-				TableModelListener.class, listenerList);
+		RowEvent e = new RowEvent(this, column);
+		EventListenerListIterator<RowListener> iterator = new EventListenerListIterator<>(
+				RowListener.class, listenerList);
 		while (iterator.hasNext()) {
-			iterator.next().tableChanged(e);
+			iterator.next().rowChanged(e);
 		}
 	}
 

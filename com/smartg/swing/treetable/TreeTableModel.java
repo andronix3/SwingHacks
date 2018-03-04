@@ -31,10 +31,10 @@ public class TreeTableModel extends AbstractTableModel {
 	private List<Object> columnNames;
 	private List<TreeRow> dataVector;
 	
-	private TableModelListener rowsListener = new TableModelListener() {
+	private RowListener rowsListener = new RowListener() {
 		@Override
-		public void tableChanged(TableModelEvent e) {
-			TableModelEvent e2 = new TableModelEvent(TreeTableModel.this, e.getFirstRow(), e.getLastRow(), e.getColumn());
+		public void rowChanged(RowEvent e) {
+			TableModelEvent e2 = new TableModelEvent(TreeTableModel.this, e.getRow(), e.getRow(), e.getColumn());
 			fireTableChanged(e2);
 		}		
 	};
@@ -60,7 +60,7 @@ public class TreeTableModel extends AbstractTableModel {
 	}
 	
 	private Row register(Row r) {
-		r.addTableModelListener(rowsListener);
+		r.addRowListener(rowsListener);
 		return r;
 	}
 
