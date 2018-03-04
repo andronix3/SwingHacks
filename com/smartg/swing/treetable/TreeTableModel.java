@@ -198,7 +198,7 @@ public class TreeTableModel extends AbstractTableModel {
 		if (row >= 0 && row < visibleRows.size()) {
 			TreeRow treeRow = getTreeRow(row);
 			TreeRow parent = treeRow.getParent();
-			if(parent != null) {
+			if (parent != null) {
 				return visibleRows.indexOf(parent);
 			}
 		}
@@ -251,8 +251,12 @@ public class TreeTableModel extends AbstractTableModel {
 	}
 
 	public void installFirstColumnRenderer(final Builder builder) {
-		builder.table.getColumnModel().getColumn(0).setCellRenderer(new FirstColumnRenderer(this, builder.renderer,
-				builder.collapsedIcon, builder.expandedIcon, builder.align));
+		FirstColumnRenderer cellRenderer = new FirstColumnRenderer(this, builder.renderer, builder.collapsedIcon,
+				builder.expandedIcon, builder.align);
+		if (builder.backgroundColorSupplier != null) {
+			cellRenderer.setBackgroundcolorSupplier(builder.backgroundColorSupplier);
+		}
+		builder.table.getColumnModel().getColumn(0).setCellRenderer(cellRenderer);
 
 		FirstColumnEditor cellEditor = new FirstColumnEditor(this, builder.collapsedIcon, builder.expandedIcon,
 				builder.align);
@@ -279,8 +283,6 @@ public class TreeTableModel extends AbstractTableModel {
 		private Icon expandedIcon = HandleIcon.getExpandedImage();
 		private int align = SwingUtilities.LEFT;
 		private TableCellRendererColorSupplier backgroundColorSupplier;
-		
-		
 
 		public JTable getTable() {
 			return table;

@@ -3,6 +3,7 @@ package com.smartg.swing.table;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.util.Objects;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -124,7 +125,7 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 	}
 
 	public void setBackgroundcolorSupplier(TableCellRendererColorSupplier backgroundcolorSupplier) {
-		this.backgroundcolorSupplier = backgroundcolorSupplier;
+		this.backgroundcolorSupplier = Objects.requireNonNull(backgroundcolorSupplier);
 	}
 
 	public Color getBackgroundColor(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
