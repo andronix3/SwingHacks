@@ -4,8 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Graphics;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -19,7 +22,7 @@ import com.smartg.swing.layout.NodeConstraints;
 
 public abstract class TableCellRendererWithButton implements TableCellRenderer {
 
-    private final JPanel panel = new JPanel();
+    private final JComponent panel = new JLabel();
     private final StealthButton button = new StealthButton();
     private boolean buttonContentAreaFilled = true;
     private boolean buttonBorderPainted = true;
@@ -37,6 +40,7 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
         JNodeLayout layout = new JNodeLayout(this.panel, root);
 
         this.panel.setLayout(layout);
+        this.panel.setOpaque(true);
         if (buttonAlignment == 4) {
             this.panel.add(this.rendererPanel, new NodeConstraints("root"));
             LayoutNode.HorizontalNode buttonNode = new LayoutNode.HorizontalNode("button");
