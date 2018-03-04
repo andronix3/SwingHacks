@@ -27,7 +27,7 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
     private boolean buttonContentAreaFilled = true;
     private boolean buttonBorderPainted = true;
     private TableCellRenderer renderer;
-    private final JPanel rendererPanel = new JPanel(new BorderLayout());
+    private final JComponent rendererPanel = new JLabel();
     private boolean useValueForButton;
 
     public TableCellRendererWithButton(TableCellRenderer renderer) {
@@ -41,6 +41,7 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 
         this.panel.setLayout(layout);
         this.panel.setOpaque(true);
+        rendererPanel.setLayout(new BorderLayout());
         if (buttonAlignment == 4) {
             this.panel.add(this.rendererPanel, new NodeConstraints("root"));
             LayoutNode.HorizontalNode buttonNode = new LayoutNode.HorizontalNode("button");
