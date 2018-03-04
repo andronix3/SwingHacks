@@ -16,6 +16,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import com.smartg.swing.table.TableCellRendererColorSupplier;
+
 public class TreeTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = -7352868779102415178L;
@@ -231,7 +233,7 @@ public class TreeTableModel extends AbstractTableModel {
 						}
 					}
 				}
-				final int indexOf = visibleRows.indexOf(this) + 1;
+				final int indexOf = visibleRows.indexOf(tr) + 1;
 				fireTableRowsDeleted(indexOf, indexOf + count);
 			} else {
 				final int indexOf = visibleRows.indexOf(tr) + 1;
@@ -276,6 +278,9 @@ public class TreeTableModel extends AbstractTableModel {
 		private Icon collapsedIcon = HandleIcon.getCollapsedImage();
 		private Icon expandedIcon = HandleIcon.getExpandedImage();
 		private int align = SwingUtilities.LEFT;
+		private TableCellRendererColorSupplier backgroundColorSupplier;
+		
+		
 
 		public JTable getTable() {
 			return table;
@@ -319,6 +324,15 @@ public class TreeTableModel extends AbstractTableModel {
 
 		public Builder setAlign(int align) {
 			this.align = align;
+			return this;
+		}
+
+		public TableCellRendererColorSupplier getBackgroundColorSupplier() {
+			return backgroundColorSupplier;
+		}
+
+		public Builder setBackgroundColorSupplier(TableCellRendererColorSupplier backgroundColorSupplier) {
+			this.backgroundColorSupplier = backgroundColorSupplier;
 			return this;
 		}
 	}

@@ -1,6 +1,5 @@
 package com.smartg.swing.table;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -11,7 +10,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -30,6 +28,16 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 	private TableCellRenderer renderer;
 	private final JComponent rendererPanel = new Box(BoxLayout.LINE_AXIS);
 	private boolean useValueForButton;
+	private TableCellRendererColorSupplier backgroundcolorSupplier = new TableCellRendererColorSupplier() {
+		@Override
+		public Color getColor(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			if (isSelected) {
+				return table.getSelectionBackground();
+			} else {
+				return table.getBackground();
+			}
+		}
+	};
 
 	public TableCellRendererWithButton(TableCellRenderer renderer) {
 		this(renderer, 4);
@@ -100,7 +108,7 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 		comp.setHorizontalAlignment(4);
 
 		comp.setOpaque(true);
-		
+
 		Color bg = getBackgroundColor(table, value, isSelected, hasFocus, row, column);
 		this.panel.setBackground(bg);
 		comp.setBackground(bg);
@@ -111,13 +119,17 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 		return this.panel;
 	}
 
+	public TableCellRendererColorSupplier getBackgroundcolorSupplier() {
+		return backgroundcolorSupplier;
+	}
+
+	public void setBackgroundcolorSupplier(TableCellRendererColorSupplier backgroundcolorSupplier) {
+		this.backgroundcolorSupplier = backgroundcolorSupplier;
+	}
+
 	public Color getBackgroundColor(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
 			int column) {
-		if (isSelected) {
-			return table.getSelectionBackground();
-		} else {
-			return table.getBackground();
-		}
+		return backgroundcolorSupplier.getColor(table, value, isSelected, hasFocus, row, column);
 	}
 
 	public boolean isUseValueForButton(JTable table, Object value, boolean isSelected, int row, int column) {
