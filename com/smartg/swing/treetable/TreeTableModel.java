@@ -13,6 +13,8 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -28,9 +30,17 @@ public class TreeTableModel extends AbstractTableModel {
 
 	private List<Object> columnNames;
 	private List<TreeRow> dataVector;
+	
+	private TableModelListener rowsListener = new TableModelListener() {
+		@Override
+		public void tableChanged(TableModelEvent e) {
+			TableModelEvent e2 = new TableModelEvent(TreeTableModel.this, e.getFirstRow(), e.getLastRow(), e.getColumn());
+			fireTableChanged(e2);
+		}		
+	};
 
 	public TreeTableModel(Object[][] data, Object[] columnNames) {
-		this.root = new TreeRow(new Row(-1, new Object[columnNames.length]));
+		this.root = new TreeRow(createRow(-1, new Object[columnNames.length]));
 		this.columnNames = Arrays.asList(columnNames);
 		this.dataVector = new ArrayList<>();
 		int r = 0;
@@ -44,9 +54,18 @@ public class TreeTableModel extends AbstractTableModel {
 
 		visibleRows.addAll(rowsByNumber.values());
 	}
+	
+	private Row createRow(int index, Object[] values) {
+		return register(new Row(index, values));
+	}
+	
+	private Row register(Row r) {
+		r.addTableModelListener(rowsListener);
+		return r;
+	}
 
 	public TreeTableModel(Row[] rows, Object[] columnNames) {
-		this.root = new TreeRow(new Row(-1, new Object[columnNames.length]));
+		this.root = new TreeRow(createRow(-1, new Object[columnNames.length]));
 		this.columnNames = Arrays.asList(columnNames);
 		dataVector = new ArrayList<>();
 		Arrays.sort(rows, new Comparator<Row>() {
@@ -56,6 +75,7 @@ public class TreeTableModel extends AbstractTableModel {
 			}
 		});
 		for (Row r : rows) {
+			register(r);
 			dataVector.add(new TreeRow(r));
 		}
 		dataVector.forEach(t -> rowsById.put(t.getRow().getId(), t));
@@ -67,7 +87,7 @@ public class TreeTableModel extends AbstractTableModel {
 	}
 
 	public TreeTableModel(TreeRow[] rows, Object[] columnNames) {
-		this.root = new TreeRow(new Row(-1, new Object[columnNames.length]));
+		this.root = new TreeRow(createRow(-1, new Object[columnNames.length]));
 		this.columnNames = Arrays.asList(columnNames);
 		Arrays.sort(rows, new Comparator<TreeRow>() {
 			@Override
@@ -75,6 +95,9 @@ public class TreeTableModel extends AbstractTableModel {
 				return o1.getRow().getRowNumber().compareTo(o2.getRow().getRowNumber());
 			}
 		});
+		for(TreeRow tr: rows) {
+			register(tr.getRow());
+		}
 
 		dataVector = new ArrayList<>(Arrays.asList(rows));
 		dataVector.forEach(t -> rowsById.put(t.getRow().getId(), t));
@@ -208,7 +231,7 @@ public class TreeTableModel extends AbstractTableModel {
 		}
 		return -1;
 	}
-
+        
 	public Row[] getChildren(int parent) {
 		Integer id = getRow(parent).getId();
 		return rowsById.values().stream().filter(p -> p.getParent().getRow().getId().equals(id)).toArray(Row[]::new);

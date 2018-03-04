@@ -4,6 +4,13 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.event.EventListenerList;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+
+import com.smartg.java.util.AddToList;
+import com.smartg.java.util.EventListenerListIterator;
+
 public class Row implements Serializable {
 
 	private static final long serialVersionUID = 8925551346210586101L;
@@ -13,9 +20,28 @@ public class Row implements Serializable {
 	private final Integer id = new Object().hashCode();
 	private Integer parentId;
 
+	protected EventListenerList listenerList = new EventListenerList();
+
 	public Row(int rowNumber, Object[] data) {
 		this.rowNumber = rowNumber;
 		this.data = Arrays.asList(data);
+	}
+
+	public void addTableModelListener(TableModelListener l) {
+		new AddToList(listenerList).add(TableModelListener.class, l);
+	}
+
+	public void removeTableModelListener(TableModelListener l) {
+		listenerList.remove(TableModelListener.class, l);
+	}
+
+	public void fireTableCellUpdated(int column) {
+		TableModelEvent e = new TableModelEvent(null, rowNumber, rowNumber, column);
+		EventListenerListIterator<TableModelListener> iterator = new EventListenerListIterator<>(
+				TableModelListener.class, listenerList);
+		while (iterator.hasNext()) {
+			iterator.next().tableChanged(e);
+		}
 	}
 
 	public Integer getRowNumber() {
@@ -25,11 +51,12 @@ public class Row implements Serializable {
 	public void setRowNumber(int rowNumber) {
 		this.rowNumber = rowNumber;
 	}
-	
+
 	public void setValueAt(Object value, int column) {
 		data.set(column, value);
+		fireTableCellUpdated(column);
 	}
-	
+
 	public Object getValueAt(int column) {
 		return data.get(column);
 	}
