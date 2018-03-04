@@ -14,7 +14,6 @@ import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -234,7 +233,7 @@ public class TreeTableModel extends AbstractTableModel {
         
 	public Row[] getChildren(int parent) {
 		Integer id = getRow(parent).getId();
-		return rowsById.values().stream().filter(p -> p.getParent().getRow().getId().equals(id)).toArray(Row[]::new);
+		return rowsById.values().stream().filter(p -> p.getParent().getRow().getId().equals(id)).map(t -> t.getRow()).toArray(Row[]::new);
 	}
 
 	@Override
