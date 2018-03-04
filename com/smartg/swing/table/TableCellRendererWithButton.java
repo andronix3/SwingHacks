@@ -1,6 +1,7 @@
 package com.smartg.swing.table;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 
@@ -22,156 +23,160 @@ import com.smartg.swing.layout.NodeConstraints;
 
 public abstract class TableCellRendererWithButton implements TableCellRenderer {
 
-    private final JComponent panel = new JLabel();
-    private final StealthButton button = new StealthButton();
-    private boolean buttonContentAreaFilled = true;
-    private boolean buttonBorderPainted = true;
-    private TableCellRenderer renderer;
-    private final JComponent rendererPanel = new Box(BoxLayout.LINE_AXIS);
-    private boolean useValueForButton;
+	private final JComponent panel = new JLabel();
+	private final StealthButton button = new StealthButton();
+	private boolean buttonContentAreaFilled = true;
+	private boolean buttonBorderPainted = true;
+	private TableCellRenderer renderer;
+	private final JComponent rendererPanel = new Box(BoxLayout.LINE_AXIS);
+	private boolean useValueForButton;
 
-    public TableCellRendererWithButton(TableCellRenderer renderer) {
-        this(renderer, 4);
-    }
+	public TableCellRendererWithButton(TableCellRenderer renderer) {
+		this(renderer, 4);
+	}
 
-    public TableCellRendererWithButton(TableCellRenderer renderer, int buttonAlignment) {
-        this.renderer = renderer;
-        LayoutNode.HorizontalNode root = new LayoutNode.HorizontalNode("root");
-        JNodeLayout layout = new JNodeLayout(this.panel, root);
+	public TableCellRendererWithButton(TableCellRenderer renderer, int buttonAlignment) {
+		this.renderer = renderer;
+		LayoutNode.HorizontalNode root = new LayoutNode.HorizontalNode("root");
+		JNodeLayout layout = new JNodeLayout(this.panel, root);
 
-        this.panel.setLayout(layout);
-        this.panel.setOpaque(true);
-        if (buttonAlignment == 4) {
-            this.panel.add(this.rendererPanel, new NodeConstraints("root"));
-            LayoutNode.HorizontalNode buttonNode = new LayoutNode.HorizontalNode("button");
-            buttonNode.setHorizontalAlignment(NodeAlignment.RIGHT);
-            root.add(buttonNode);
-            this.panel.add(this.button, new NodeConstraints("button"));
-            layout.setHorizontalAlignment(this.rendererPanel, NodeAlignment.RIGHT);
-            root.setHorizontalAlignment(NodeAlignment.RIGHT);
-            layout.setHorizontalAlignment(this.button, NodeAlignment.RIGHT);
-        } else {
-            LayoutNode.HorizontalNode buttonNode = new LayoutNode.HorizontalNode("button");
-            buttonNode.setHorizontalAlignment(NodeAlignment.LEFT);
-            root.add(buttonNode);
-            this.panel.add(this.button, new NodeConstraints("button"));
+		this.panel.setLayout(layout);
+		this.panel.setOpaque(true);
+		if (buttonAlignment == 4) {
+			this.panel.add(this.rendererPanel, new NodeConstraints("root"));
+			LayoutNode.HorizontalNode buttonNode = new LayoutNode.HorizontalNode("button");
+			buttonNode.setHorizontalAlignment(NodeAlignment.RIGHT);
+			root.add(buttonNode);
+			this.panel.add(this.button, new NodeConstraints("button"));
+			layout.setHorizontalAlignment(this.rendererPanel, NodeAlignment.RIGHT);
+			root.setHorizontalAlignment(NodeAlignment.RIGHT);
+			layout.setHorizontalAlignment(this.button, NodeAlignment.RIGHT);
+		} else {
+			LayoutNode.HorizontalNode buttonNode = new LayoutNode.HorizontalNode("button");
+			buttonNode.setHorizontalAlignment(NodeAlignment.LEFT);
+			root.add(buttonNode);
+			this.panel.add(this.button, new NodeConstraints("button"));
 
-            this.panel.add(this.rendererPanel, new NodeConstraints("root"));
-            layout.setHorizontalAlignment(this.rendererPanel, NodeAlignment.LEFT);
-            root.setHorizontalAlignment(NodeAlignment.LEFT);
-            layout.setHorizontalAlignment(this.button, NodeAlignment.LEFT);
-        }
-        layout.setHorizontalAlignment(this.button, NodeAlignment.RIGHT);
-    }
+			this.panel.add(this.rendererPanel, new NodeConstraints("root"));
+			layout.setHorizontalAlignment(this.rendererPanel, NodeAlignment.LEFT);
+			root.setHorizontalAlignment(NodeAlignment.LEFT);
+			layout.setHorizontalAlignment(this.button, NodeAlignment.LEFT);
+		}
+		layout.setHorizontalAlignment(this.button, NodeAlignment.RIGHT);
+	}
 
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-            int row, int column) {
-        String string = "";
-        if (value != null) {
-            string = value.toString();
-        }
-        this.button.setContentAreaFilled(isButtonContentAreaFilled());
-        this.button.setBorderPainted(isButtonBorderPainted());
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+			int row, int column) {
+		String string = "";
+		if (value != null) {
+			string = value.toString();
+		}
+		this.button.setContentAreaFilled(isButtonContentAreaFilled());
+		this.button.setBorderPainted(isButtonBorderPainted());
 
-        Icon buttonIcon = getButtonIcon();
-        if (buttonIcon != null) {
-            this.button.setIcon(buttonIcon);
-        } else {
-            String buttonText = getButtonText();
-            if ((buttonText != null) && (!buttonText.isEmpty())) {
-                this.button.setText(buttonText);
-            } else {
-                this.button.setText("...");
-            }
-        }
-        this.button.setStealthMode(!showButton(table, string, isSelected, hasFocus, row, column));
-        JLabel comp;
-        if (isUseValueForButton(table, value, isSelected, row, column)) {
-            comp = (JLabel) this.renderer.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
-            this.button.setText(string);
-            comp.setVisible(false);
-        } else {
-            comp = (JLabel) this.renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-                    column);
-            comp.setVisible(true);
-        }
-        comp.setHorizontalTextPosition(4);
-        comp.setHorizontalAlignment(4);
+		Icon buttonIcon = getButtonIcon();
+		if (buttonIcon != null) {
+			this.button.setIcon(buttonIcon);
+		} else {
+			String buttonText = getButtonText();
+			if ((buttonText != null) && (!buttonText.isEmpty())) {
+				this.button.setText(buttonText);
+			} else {
+				this.button.setText("...");
+			}
+		}
+		this.button.setStealthMode(!showButton(table, string, isSelected, hasFocus, row, column));
+		JLabel comp;
+		if (isUseValueForButton(table, value, isSelected, row, column)) {
+			comp = (JLabel) this.renderer.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
+			this.button.setText(string);
+			comp.setVisible(false);
+		} else {
+			comp = (JLabel) this.renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+					column);
+			comp.setVisible(true);
+		}
+		comp.setHorizontalTextPosition(4);
+		comp.setHorizontalAlignment(4);
 
-        comp.setOpaque(true);
-        if (isSelected) {
-            this.panel.setBackground(table.getSelectionBackground());
-            comp.setBackground(table.getSelectionBackground());
-            this.rendererPanel.setBackground(table.getSelectionBackground());
-            comp.setBackground(table.getSelectionBackground());
-        } else {
-            comp.setBackground(table.getBackground());
-            this.panel.setBackground(table.getBackground());
-            this.rendererPanel.setBackground(table.getBackground());
-            comp.setBackground(table.getBackground());
-        }
-        this.rendererPanel.add(comp, "Center");
-        
-        return this.panel;
-    }
+		comp.setOpaque(true);
+		
+		Color bg = getBackgroundColor(table, value, isSelected, hasFocus, row, column);
+		this.panel.setBackground(bg);
+		comp.setBackground(bg);
+		this.rendererPanel.setBackground(bg);
+		comp.setBackground(bg);
+		this.rendererPanel.add(comp, "Center");
 
-    public boolean isUseValueForButton(JTable table, Object value, boolean isSelected, int row, int column) {
-        return this.useValueForButton;
-    }
+		return this.panel;
+	}
 
-    public void setUseValueForButton(boolean useValueForButton) {
-        this.useValueForButton = useValueForButton;
-    }
+	public Color getBackgroundColor(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
+			int column) {
+		if (isSelected) {
+			return table.getSelectionBackground();
+		} else {
+			return table.getBackground();
+		}
+	}
 
-    protected String getButtonText() {
-        return null;
-    }
+	public boolean isUseValueForButton(JTable table, Object value, boolean isSelected, int row, int column) {
+		return this.useValueForButton;
+	}
 
-    protected Icon getButtonIcon() {
-        return null;
-    }
+	public void setUseValueForButton(boolean useValueForButton) {
+		this.useValueForButton = useValueForButton;
+	}
 
-    public boolean isButtonContentAreaFilled() {
-        return this.buttonContentAreaFilled;
-    }
+	protected String getButtonText() {
+		return null;
+	}
 
-    public boolean isButtonBorderPainted() {
-        return this.buttonBorderPainted;
-    }
+	protected Icon getButtonIcon() {
+		return null;
+	}
 
-    public void setButtonContentAreaFilled(boolean buttonContentAreaFilled) {
-        this.buttonContentAreaFilled = buttonContentAreaFilled;
-    }
+	public boolean isButtonContentAreaFilled() {
+		return this.buttonContentAreaFilled;
+	}
 
-    public void setButtonBorderPainted(boolean buttonBorderPainted) {
-        this.buttonBorderPainted = buttonBorderPainted;
-    }
+	public boolean isButtonBorderPainted() {
+		return this.buttonBorderPainted;
+	}
 
-    protected abstract boolean showButton(JTable table, Object value, boolean isSelected,
-            boolean hasFocus, int row, int col);
+	public void setButtonContentAreaFilled(boolean buttonContentAreaFilled) {
+		this.buttonContentAreaFilled = buttonContentAreaFilled;
+	}
 
-    public JButton getButton() {
-        return this.button;
-    }
+	public void setButtonBorderPainted(boolean buttonBorderPainted) {
+		this.buttonBorderPainted = buttonBorderPainted;
+	}
 
-    static class StealthButton extends NullMarginButton {
+	protected abstract boolean showButton(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
+			int col);
 
-        private static final long serialVersionUID = -9008065882485328141L;
-        private boolean stealthMode;
+	public JButton getButton() {
+		return this.button;
+	}
 
-        public void paint(Graphics g) {
-            if (!this.stealthMode) {
-                super.paint(g);
-            }
-        }
+	static class StealthButton extends NullMarginButton {
 
-        public boolean isStealthMode() {
-            return this.stealthMode;
-        }
+		private static final long serialVersionUID = -9008065882485328141L;
+		private boolean stealthMode;
 
-        public void setStealthMode(boolean stealthMode) {
-            this.stealthMode = stealthMode;
-        }
-    }
+		public void paint(Graphics g) {
+			if (!this.stealthMode) {
+				super.paint(g);
+			}
+		}
+
+		public boolean isStealthMode() {
+			return this.stealthMode;
+		}
+
+		public void setStealthMode(boolean stealthMode) {
+			this.stealthMode = stealthMode;
+		}
+	}
 
 }
