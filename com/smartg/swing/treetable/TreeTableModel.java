@@ -192,6 +192,15 @@ public class TreeTableModel extends AbstractTableModel {
 		}
 	}
 
+	public int getParentRow(int row) {
+		if (row >= 0 && row < visibleRows.size()) {
+			TreeRow treeRow = getTreeRow(row);
+			TreeRow parent = treeRow.getParent();
+			return visibleRows.indexOf(parent);
+		}
+		return -1;
+	}
+
 	@Override
 	public boolean isCellEditable(int row, int column) {
 		if (column != 0) {
@@ -241,7 +250,8 @@ public class TreeTableModel extends AbstractTableModel {
 		builder.table.getColumnModel().getColumn(0).setCellRenderer(new FirstColumnRenderer(this, builder.renderer,
 				builder.collapsedIcon, builder.expandedIcon, builder.align));
 
-		FirstColumnEditor cellEditor = new FirstColumnEditor(this, builder.collapsedIcon, builder.expandedIcon, builder.align);
+		FirstColumnEditor cellEditor = new FirstColumnEditor(this, builder.collapsedIcon, builder.expandedIcon,
+				builder.align);
 		builder.table.getColumnModel().getColumn(0).setCellEditor(cellEditor);
 
 		cellEditor.getButton().addActionListener(new ActionListener() {
