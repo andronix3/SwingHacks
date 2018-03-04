@@ -196,7 +196,9 @@ public class TreeTableModel extends AbstractTableModel {
 		if (row >= 0 && row < visibleRows.size()) {
 			TreeRow treeRow = getTreeRow(row);
 			TreeRow parent = treeRow.getParent();
-			return visibleRows.indexOf(parent);
+			if(parent != null) {
+				return visibleRows.indexOf(parent);
+			}
 		}
 		return -1;
 	}
