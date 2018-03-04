@@ -237,7 +237,7 @@ public class TreeTableModel extends AbstractTableModel {
 		}
 	}
 
-	public void installFirstColumnRenderer(Builder builder) {
+	public void installFirstColumnRenderer(final Builder builder) {
 		builder.table.getColumnModel().getColumn(0).setCellRenderer(new FirstColumnRenderer(this, builder.renderer,
 				builder.collapsedIcon, builder.expandedIcon, builder.align));
 

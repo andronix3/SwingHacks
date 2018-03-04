@@ -94,15 +94,17 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
         comp.setHorizontalTextPosition(4);
         comp.setHorizontalAlignment(4);
 
-        comp.setOpaque(false);
+        comp.setOpaque(true);
         if (isSelected) {
             this.panel.setBackground(table.getSelectionBackground());
             comp.setBackground(table.getSelectionBackground());
             this.rendererPanel.setBackground(table.getSelectionBackground());
+            comp.setBackground(table.getSelectionBackground());
         } else {
             comp.setBackground(table.getBackground());
             this.panel.setBackground(table.getBackground());
             this.rendererPanel.setBackground(table.getBackground());
+            comp.setBackground(table.getBackground());
         }
         this.rendererPanel.add(comp, "Center");
         return this.panel;
