@@ -3,10 +3,9 @@ package com.smartg.swing.treetable;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.event.EventListenerList;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 import com.smartg.java.util.AddToList;
 import com.smartg.java.util.EventListenerListIterator;
@@ -14,11 +13,12 @@ import com.smartg.java.util.EventListenerListIterator;
 public class Row implements Serializable {
 
 	private static final long serialVersionUID = 8925551346210586101L;
-
+	
 	private int rowNumber;
 	private List<Object> data;
-	private final Integer id = new Object().hashCode();
-	private Integer parentId;
+	private final Long id = (long) new Object().hashCode();
+	private Long parentId;
+	private Long sieblingId;
 
 	protected EventListenerList listenerList = new EventListenerList();
 
@@ -37,8 +37,8 @@ public class Row implements Serializable {
 
 	public void fireTableCellUpdated(int column) {
 		RowEvent e = new RowEvent(this, column);
-		EventListenerListIterator<RowListener> iterator = new EventListenerListIterator<>(
-				RowListener.class, listenerList);
+		EventListenerListIterator<RowListener> iterator = new EventListenerListIterator<>(RowListener.class,
+				listenerList);
 		while (iterator.hasNext()) {
 			iterator.next().rowChanged(e);
 		}
@@ -61,19 +61,30 @@ public class Row implements Serializable {
 		return data.get(column);
 	}
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public Integer getParentId() {
+	public Long getParentId() {
 		return parentId;
 	}
 
-	public void setParentId(Integer parentId) {
-		if (parentId == id) {
+	public void setParentId(Long parentId) {
+		if (Objects.equals(parentId, id) || Objects.equals(parentId, sieblingId)) {
 			throw new IllegalArgumentException();
 		}
 		this.parentId = parentId;
+	}
+
+	public Long getSieblingId() {
+		return sieblingId;
+	}
+
+	public void setSieblingId(Long sieblingId) {
+		if (Objects.equals(sieblingId, id) || Objects.equals(sieblingId, parentId)) {
+			throw new IllegalArgumentException();
+		}
+		this.sieblingId = sieblingId;
 	}
 
 	@Override

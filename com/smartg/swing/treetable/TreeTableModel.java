@@ -24,7 +24,7 @@ public class TreeTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = -7352868779102415178L;
 	private ArrayList<TreeRow> visibleRows = new ArrayList<>();
 	private LinkedHashMap<Integer, TreeRow> rowsByNumber = new LinkedHashMap<>();
-	private HashMap<Integer, TreeRow> rowsById = new HashMap<>();
+	private HashMap<Long, TreeRow> rowsById = new HashMap<>();
 	private TreeRow root;
 
 	private List<Object> columnNames;
@@ -110,7 +110,7 @@ public class TreeTableModel extends AbstractTableModel {
 	private void updateParents() {
 		dataVector.forEach(t -> {
 			if (t.getParent() == null) {
-				Integer parentId = t.getRow().getParentId();
+				Long parentId = t.getRow().getParentId();
 				if (parentId == null) {
 					root.addChild(t);
 				} else {
@@ -230,10 +230,19 @@ public class TreeTableModel extends AbstractTableModel {
 		}
 		return -1;
 	}
-        
+    
 	public Row[] getChildren(int parent) {
-		Integer id = getRow(parent).getId();
+		Long id = getRow(parent).getId();
 		return rowsById.values().stream().filter(p -> p.getParent().getRow().getId().equals(id)).map(t -> t.getRow()).toArray(Row[]::new);
+	}
+	
+	public Row getSiebling(int rowIndex) {
+		Long id = getRow(rowIndex).getSieblingId();
+		TreeRow treeRow = rowsById.get(id);
+		if(treeRow != null) {
+			return treeRow.getRow();
+		}
+		return null;
 	}
 
 	@Override
