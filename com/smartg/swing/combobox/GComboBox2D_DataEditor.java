@@ -44,7 +44,7 @@ public class GComboBox2D_DataEditor<E> extends GComboBoxEditor<E> {
 	protected JList<String> hlist;
 	protected JList<String> vlist;
 	private int cellSize = 26;
-
+//setCellSize 
 	public GDataPanel_2D(String[] hlabels, String[] vlabels, ComboBoxModel<E> data) {
 	    setLayout(new BCLayout());
 

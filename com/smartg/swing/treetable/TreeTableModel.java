@@ -237,7 +237,7 @@ public class TreeTableModel extends AbstractTableModel {
 	}
 	
 	public Row getSiebling(int rowIndex) {
-		Long id = getRow(rowIndex).getSieblingId();
+		Long id = getRow(rowIndex).getNextSieblingId();
 		TreeRow treeRow = rowsById.get(id);
 		if(treeRow != null) {
 			return treeRow.getRow();
