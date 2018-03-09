@@ -227,7 +227,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		list.setFixedCellHeight(30);
 		list.setFixedCellWidth(30);
 
-		horizontalAlignment = SwingConstants.RIGHT;
+		horizontalAlignment = SwingConstants.CENTER;
 		drawGrid = false;
 
 		cdays.setLayoutOrientation(JList.HORIZONTAL_WRAP);

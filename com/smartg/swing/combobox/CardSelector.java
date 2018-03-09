@@ -91,7 +91,7 @@ public class CardSelector extends GComboBox2D_DataEditor<String> {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new GComboBox<String>(new CardSelector()));
 		GComboBoxCalendarEditor ctrl = new GComboBoxCalendarEditor();
-		
+		ctrl.getComponent().setCellSize(50);
 		frame.add(new GComboBox<String>(ctrl));
 		frame.pack();
 		frame.setVisible(true);
