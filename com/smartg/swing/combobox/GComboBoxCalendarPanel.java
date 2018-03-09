@@ -30,15 +30,18 @@ import javax.swing.event.ListSelectionListener;
 
 import com.smartg.swing.FixedListModel;
 
-enum GoType {
-	PrevMonth, NextMonth, PrevYear, NextYear, NoGo
-}
-
 public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 
-	private static final long serialVersionUID = -8617553669929693130L;
+	static enum GoType {
+		NextMonth, NextYear, NoGo, PrevMonth, PrevYear
+	}
 
 	private class NextMonthListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			goNextMonth();
+		}
+
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			nextMonth.setBackground(Color.orange);
@@ -60,72 +63,14 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 			goType = GoType.NoGo;
 			t.stop();
 		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			goNextMonth();
-		}
-	}
-
-	private class PrevMonthListener extends MouseAdapter {
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			prevMonth.setBackground(Color.orange);
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			prevMonth.setBackground(null);
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			goType = GoType.PrevMonth;
-			t.restart();
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			goType = GoType.NoGo;
-			t.stop();
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			goPrevMonth();
-		}
-	}
-
-	private class PrevYearListener extends MouseAdapter {
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			prevYear.setBackground(Color.orange);
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			prevYear.setBackground(null);
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			goType = GoType.PrevYear;
-			t.restart();
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			goType = GoType.NoGo;
-			t.stop();
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			goPrevYear();
-		}
 	}
 
 	private class NextYearListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			goNextYear();
+		}
+
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			nextYear.setBackground(Color.orange);
@@ -147,15 +92,93 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 			goType = GoType.NoGo;
 			t.stop();
 		}
+	}
 
+	private class PrevMonthListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			goNextYear();
+			goPrevMonth();
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			prevMonth.setBackground(Color.orange);
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			prevMonth.setBackground(null);
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			goType = GoType.PrevMonth;
+			t.restart();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			goType = GoType.NoGo;
+			t.stop();
 		}
 	}
 
+	private class PrevYearListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			goPrevYear();
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			prevYear.setBackground(Color.orange);
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			prevYear.setBackground(null);
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			goType = GoType.PrevYear;
+			t.restart();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			goType = GoType.NoGo;
+			t.stop();
+		}
+	}
+
+	private static final long serialVersionUID = -8617553669929693130L;
+
+	private static Calendar createCalendar(int year, int month, int day) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.MONTH, month);
+		calendar.set(Calendar.DAY_OF_MONTH, day);
+		return calendar;
+	}
+
+	private Calendar calendar;
+
+	private String[] days = new String[7];
+	private JList<String> cdays = new JList<String>(days);
+	private JLabel current = new JLabel();
+
 	private GoType goType = GoType.NoGo;
 
+	protected EventListenerList listenerList = new EventListenerList();
+
+	private JPanel middlePanel = new JPanel(new BorderLayout());
+	private JLabel nextMonth;
+
+	private JLabel nextYear;
+	private JLabel prevMonth;
+
+	private JLabel prevYear;
 	private Timer t = new Timer(200, new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 			switch (goType) {
@@ -178,52 +201,9 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		}
 	});
 
-	private Calendar calendar;
 	private Box topBox;
 
 	private String[] values = new String[35 + 7];
-	private String[] days = new String[7];
-
-	private JList<String> cdays = new JList<String>(days);
-
-	private JLabel prevMonth;
-	private JLabel nextMonth;
-
-	private JLabel prevYear;
-	private JLabel nextYear;
-
-	private JLabel current = new JLabel();
-	private JPanel middlePanel = new JPanel(new BorderLayout());
-
-	protected EventListenerList listenerList = new EventListenerList();
-
-	public void addChangeListener(ChangeListener l) {
-		listenerList.add(ChangeListener.class, l);
-	}
-
-	public void removeChangeListener(ChangeListener l) {
-		listenerList.remove(ChangeListener.class, l);
-	}
-
-	protected void fireChangeEvent() {
-		ChangeListener[] listeners = listenerList.getListeners(ChangeListener.class);
-		ChangeEvent e = new ChangeEvent(this);
-		for (int i = 0; i < listeners.length; i++) {
-			listeners[i].stateChanged(e);
-		}
-	}
-	
-	public GComboBoxCalendarPanel(int year, int month, int day) {
-		this(createCalendar(year, month, day));
-	}
-
-	private static Calendar createCalendar(int year, int month, int day) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.MONTH, month);
-		calendar.set(Calendar.DAY_OF_MONTH, day);
-		return calendar;
-	}
 
 	public GComboBoxCalendarPanel(Calendar cal) {
 		this.calendar = cal;
@@ -306,17 +286,40 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		middlePanel.add(list);
 		middlePanel.add(cdays, BorderLayout.NORTH);
 	}
-	
-	public Date getTime() {
-		return calendar.getTime();
+
+	public GComboBoxCalendarPanel(int year, int month, int day) {
+		this(createCalendar(year, month, day));
 	}
 
-	public void setDate(Date date) {
-		calendar.setTime(date);
-		updateValues();
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		String dom = "" + day;
-		list.setSelectedValue(dom, false);
+	public void addChangeListener(ChangeListener l) {
+		listenerList.add(ChangeListener.class, l);
+	}
+
+	protected void fireChangeEvent() {
+		ChangeListener[] listeners = listenerList.getListeners(ChangeListener.class);
+		ChangeEvent e = new ChangeEvent(this);
+		for (int i = 0; i < listeners.length; i++) {
+			listeners[i].stateChanged(e);
+		}
+	}
+
+	protected Color getCellBackground(int x, int y, boolean selected) {
+		int index = 7 * y + x;
+		String s = list.getModel().getElementAt(index);
+		if (s == null || s.isEmpty()) {
+			return null;
+		}
+		if (!selected && isHover(x, y)) {
+			if (hoverBG == null) {
+				hoverBG = createHoverColor(getList().getSelectionBackground());
+			}
+			return hoverBG;
+		}
+		return null;
+	}
+
+	public Date getTime() {
+		return calendar.getTime();
 	}
 
 	private void goNextMonth() throws NumberFormatException {
@@ -343,19 +346,21 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		fireChangeEvent();
 	}
 
-	protected Color getCellBackground(int x, int y, boolean selected) {
-		int index = 7 * y + x;
-		String s = list.getModel().getElementAt(index);
-		if (s == null || s.isEmpty()) {
-			return null;
+	private void goNextYear() throws NumberFormatException {
+		int year = calendar.get(Calendar.YEAR);
+
+		year += 1;
+		calendar.set(Calendar.YEAR, year);
+
+		updateValues();
+
+		String s = list.getSelectedValue();
+		if (s != null && s.length() > 0) {
+			int day = Integer.parseInt(s);
+			calendar.set(Calendar.DAY_OF_MONTH, day);
 		}
-		if (!selected && isHover(x, y)) {
-			if (hoverBG == null) {
-				hoverBG = createHoverColor(getList().getSelectionBackground());
-			}
-			return hoverBG;
-		}
-		return null;
+		list.repaint();
+		fireChangeEvent();
 	}
 
 	private void goPrevMonth() throws NumberFormatException {
@@ -398,27 +403,22 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		fireChangeEvent();
 	}
 
-	private void goNextYear() throws NumberFormatException {
-		int year = calendar.get(Calendar.YEAR);
-
-		year += 1;
-		calendar.set(Calendar.YEAR, year);
-
-		updateValues();
-
-		String s = list.getSelectedValue();
-		if (s != null && s.length() > 0) {
-			int day = Integer.parseInt(s);
-			calendar.set(Calendar.DAY_OF_MONTH, day);
-		}
-		list.repaint();
-		fireChangeEvent();
+	public void removeChangeListener(ChangeListener l) {
+		listenerList.remove(ChangeListener.class, l);
 	}
-	
+
 	@Override
 	public void setCellSize(int size) {
 		super.setCellSize(size);
 		cdays.setFixedCellWidth(size);
+	}
+
+	public void setDate(Date date) {
+		calendar.setTime(date);
+		updateValues();
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		String dom = "" + day;
+		list.setSelectedValue(dom, false);
 	}
 
 	private void updateValues() {
@@ -463,6 +463,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 			values[i + dayOfWeek] = "" + (i + 1);
 		}
 
-		current.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + " " + calendar.get(Calendar.YEAR));
+		current.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + " "
+				+ calendar.get(Calendar.YEAR));
 	}
 }
