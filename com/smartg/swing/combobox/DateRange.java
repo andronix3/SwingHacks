@@ -6,6 +6,10 @@ import java.util.Date;
 public class DateRange implements DateRangeChecker {
 	private Date startDate;
 	private Date endDate;
+	
+	public DateRange() {
+
+	}
 
 	public DateRange(Date from, Date to) {
 		this.startDate = from;
@@ -28,7 +32,9 @@ public class DateRange implements DateRangeChecker {
 		this.endDate = endDate;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.smartg.swing.combobox.DateRangeChecker#inRange(int, int, int)
 	 */
 	@Override
@@ -40,7 +46,9 @@ public class DateRange implements DateRangeChecker {
 		return inRange(c);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.smartg.swing.combobox.DateRangeChecker#inRange(java.util.Calendar)
 	 */
 	@Override
@@ -48,18 +56,35 @@ public class DateRange implements DateRangeChecker {
 		return inRange(c.getTime());
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.smartg.swing.combobox.DateRangeChecker#inRange(java.util.Date)
 	 */
 	@Override
 	public boolean inRange(Date time) {
-		if (startDate.equals(time)) {
-			return true;
+		if (startDate == null && endDate == null) {
+			return false;
 		}
-		if (endDate.equals(time)) {
-			return true;
+		if (startDate == null) {
+			return beforeOrEquals(time, endDate);
 		}
-		return startDate.before(time) && endDate.after(time);
+		if (endDate == null) {
+			return afterOrEquals(time, startDate);
+		}
+		return betweenOrEquals(time);
+	}
+
+	public boolean betweenOrEquals(Date time) {
+		return beforeOrEquals(time, endDate) && afterOrEquals(time, startDate);
+	}
+
+	private boolean afterOrEquals(Date time, Date startDate) {
+		return time.after(startDate) || time.equals(startDate);
+	}
+
+	private boolean beforeOrEquals(Date time, Date endDate) {
+		return time.before(endDate) || time.equals(endDate);
 	}
 
 	@Override
