@@ -178,7 +178,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		}
 	});
 
-	private Calendar cal;
+	Calendar cal;
 	private Box topBox;
 
 	private String[] values = new String[35 + 7];
