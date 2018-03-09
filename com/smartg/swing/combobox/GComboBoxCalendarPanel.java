@@ -249,7 +249,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		cdays.setFixedCellWidth(30);
 
 		CellRenderers.Selection_ListCellRenderer<String> cr2 = new CellRenderers.Selection_ListCellRenderer<String>();
-		cr2.renderer.setHorizontalAlignment(SwingConstants.RIGHT);
+		cr2.renderer.setHorizontalAlignment(SwingConstants.CENTER);
 		cdays.setCellRenderer(cr2);
 
 		updateValues();
@@ -282,6 +282,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 				if (s.length() > 0) {
 					int day = Integer.parseInt(s);
 					GComboBoxCalendarPanel.this.cal.set(Calendar.DAY_OF_MONTH, day);
+					updateValues();
 					fireChangeEvent();
 				}
 			}
@@ -406,6 +407,14 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		list.repaint();
 		fireChangeEvent();
 	}
+	
+	
+
+	@Override
+	public void setCellSize(int size) {
+		super.setCellSize(size);
+		cdays.setFixedCellWidth(size);
+	}
 
 	private void updateValues() {
 
@@ -415,7 +424,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		int day = cal.get(Calendar.DAY_OF_MONTH);
 
 		cal.set(year, month, 1);
-		int dow = cal.get(Calendar.DAY_OF_WEEK);
+		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
 
 		cal.set(year, month, day);
 
@@ -438,18 +447,17 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 			days[index] = key;
 		}
 
-		dow -= firstDayOfWeek;
-		if (dow < 0) {
-			dow += 7;
+		dayOfWeek -= firstDayOfWeek;
+		if (dayOfWeek < 0) {
+			dayOfWeek += 7;
 		}
 
 		int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
 		for (int i = 0; i < daysInMonth; i++) {
-			values[i + dow] = "" + (i + 1);
+			values[i + dayOfWeek] = "" + (i + 1);
 		}
 
-		current.setText(
-				cal.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) + " " + cal.get(Calendar.YEAR));
+		current.setText(cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + " " + cal.get(Calendar.YEAR));
 	}
 }
