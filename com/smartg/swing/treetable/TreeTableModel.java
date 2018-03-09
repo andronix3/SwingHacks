@@ -235,9 +235,22 @@ public class TreeTableModel extends AbstractTableModel {
 		Long id = getRow(parent).getId();
 		return rowsById.values().stream().filter(p -> p.getParent().getRow().getId().equals(id)).map(t -> t.getRow()).toArray(Row[]::new);
 	}
+        
+	public Row[] getChildren(Long id) {
+		return rowsById.values().stream().filter(p -> p.getParent().getRow().getId().equals(id)).map(t -> t.getRow()).toArray(Row[]::new);
+	}
 	
-	public Row getSiebling(int rowIndex) {
+	public Row getNextSiebling(int rowIndex) {
 		Long id = getRow(rowIndex).getNextSieblingId();
+		TreeRow treeRow = rowsById.get(id);
+		if(treeRow != null) {
+			return treeRow.getRow();
+		}
+		return null;
+	}
+
+	public Row getPrevSiebling(int rowIndex) {
+		Long id = getRow(rowIndex).getPrevSieblingId();
 		TreeRow treeRow = rowsById.get(id);
 		if(treeRow != null) {
 			return treeRow.getRow();

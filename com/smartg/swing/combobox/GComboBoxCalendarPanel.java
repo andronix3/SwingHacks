@@ -408,8 +408,6 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		fireChangeEvent();
 	}
 	
-	
-
 	@Override
 	public void setCellSize(int size) {
 		super.setCellSize(size);
