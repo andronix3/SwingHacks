@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import com.smartg.java.util.StackTraceUtil;
+
 @SuppressWarnings("rawtypes")
 public class GComboBoxCalendarEditor extends GComboBoxEditor {
 
@@ -27,7 +29,7 @@ public class GComboBoxCalendarEditor extends GComboBoxEditor {
 	}
 
 	@Override
-	public Object getValue() {
+	public Date getValue() {
 		return getTime();
 	}
 

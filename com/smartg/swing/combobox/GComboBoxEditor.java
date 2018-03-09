@@ -12,96 +12,95 @@ import javax.swing.event.ListSelectionListener;
 
 public abstract class GComboBoxEditor<E> {
 
-    private boolean finished;
-    private int clickCount = 1;
-    
-    private EventListenerList listenerList = new EventListenerList();
+	private boolean finished;
+	private int clickCount = 1;
 
-    protected GComboBoxEditorPanel<E> component;
-    
+	private EventListenerList listenerList = new EventListenerList();
 
-    public GComboBoxEditor(GComboBoxEditorPanel<E> comp) {
-	this.component = comp;
-	component.getList().addMouseListener(new ListClickHandler());
-	component.addMouseListener(new MouseAdapter() {
+	protected GComboBoxEditorPanel<E> component;
 
-	    @Override
-	    public void mouseClicked(MouseEvent e) {
-		component.list.clearSelection();
-		fireChangeEvent();
-		if (e.getClickCount() >= getClickCount()) {
-		    finishEdit();
-		}
-	    }
-	});
+	public GComboBoxEditor(GComboBoxEditorPanel<E> comp) {
+		this.component = comp;
+		component.getList().addMouseListener(new ListClickHandler());
+		component.addMouseListener(new MouseAdapter() {
 
-	component.getList().addListSelectionListener(new ListSelectionListener() {
-	    public void valueChanged(ListSelectionEvent e) {
-		if (!e.getValueIsAdjusting()) {
-		    fireChangeEvent();
-		}
-	    }
-	});
-    }
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				component.list.clearSelection();
+				fireChangeEvent();
+				if (e.getClickCount() >= getClickCount()) {
+					finishEdit();
+				}
+			}
+		});
 
-    public abstract E getValue();
-
-    public abstract ListCellRenderer<E> getRenderer();
-
-    public GComboBoxEditorPanel<E> getComponent() {
-	return component;
-    }
-
-    public final boolean editFinished() {
-	return finished;
-    }
-
-    public int getClickCount() {
-	return clickCount;
-    }
-
-    public void setClickCount(int clickCount) {
-	this.clickCount = clickCount;
-    }
-
-    public void addChangeListener(ChangeListener l) {
-	listenerList.add(ChangeListener.class, l);
-    }
-
-    public void removeChangeListener(ChangeListener l) {
-	listenerList.remove(ChangeListener.class, l);
-    }
-
-    private void fireChangeEvent() {
-	ChangeListener[] listeners = listenerList.getListeners(ChangeListener.class);
-	ChangeEvent e = new ChangeEvent(this);
-	for (int i = 0; i < listeners.length; i++) {
-	    listeners[i].stateChanged(e);
+		component.getList().addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					fireChangeEvent();
+				}
+			}
+		});
 	}
-    }
 
-    /**
-     * Should be called by implementing classes to indicate that Editor can be
-     * closed. Moreover ChangeEvent must be fired after finishEdit() to close
-     * GComboBox popup.
-     * 
-     * @return
-     */
-    protected void finishEdit() {
-	finished = true;
-    }
+	public abstract E getValue();
 
-    final void startEdit() {
-	finished = false;
-    }
+	public abstract ListCellRenderer<E> getRenderer();
 
-    protected class ListClickHandler extends MouseAdapter {
-	@Override
-	public void mouseClicked(MouseEvent e) {
-	    if (e.getClickCount() >= getClickCount()) {
-		finishEdit();
-		fireChangeEvent();
-	    }
+	public GComboBoxEditorPanel<E> getComponent() {
+		return component;
 	}
-    }
+
+	public final boolean editFinished() {
+		return finished;
+	}
+
+	public int getClickCount() {
+		return clickCount;
+	}
+
+	public void setClickCount(int clickCount) {
+		this.clickCount = clickCount;
+	}
+
+	public void addChangeListener(ChangeListener l) {
+		listenerList.add(ChangeListener.class, l);
+	}
+
+	public void removeChangeListener(ChangeListener l) {
+		listenerList.remove(ChangeListener.class, l);
+	}
+
+	private void fireChangeEvent() {
+		ChangeListener[] listeners = listenerList.getListeners(ChangeListener.class);
+		ChangeEvent e = new ChangeEvent(this);
+		for (int i = 0; i < listeners.length; i++) {
+			listeners[i].stateChanged(e);
+		}
+	}
+
+	/**
+	 * Should be called by implementing classes to indicate that Editor can be
+	 * closed. Moreover ChangeEvent must be fired after finishEdit() to close
+	 * GComboBox popup.
+	 * 
+	 * @return
+	 */
+	protected void finishEdit() {
+		finished = true;
+	}
+
+	final void startEdit() {
+		finished = false;
+	}
+
+	protected class ListClickHandler extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getClickCount() >= getClickCount()) {
+				finishEdit();
+				fireChangeEvent();
+			}
+		}
+	}
 }

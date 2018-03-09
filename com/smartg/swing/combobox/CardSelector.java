@@ -2,6 +2,7 @@ package com.smartg.swing.combobox;
 
 import java.awt.Color;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -91,7 +92,9 @@ public class CardSelector extends GComboBox2D_DataEditor<String> {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new GComboBox<String>(new CardSelector()));
 		GComboBoxCalendarEditor ctrl = new GComboBoxCalendarEditor();
-		ctrl.getComponent().setCellSize(50);
+		GComboBoxCalendarPanel component = ctrl.getComponent();
+		component.setHighlightColorForRange(new DateRange(new Date(), new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000)), Color.GRAY);
+		component.setCellSize(50);
 		frame.add(new GComboBox<String>(ctrl));
 		frame.pack();
 		frame.setVisible(true);

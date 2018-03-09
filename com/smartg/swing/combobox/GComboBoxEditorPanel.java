@@ -116,7 +116,7 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 			lastIndex = index;
 		}
 	}
-	
+
 	public void setCellSize(int size) {
 		list.setFixedCellHeight(size);
 		list.setFixedCellWidth(size);
@@ -138,9 +138,15 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 			if (c0 != null) {
 				c.setBackground(c0);
 			}
+			else {
+				c.setBackground(list.getBackground());
+			}
 			c0 = getCellForeground(cx, cy, isSelected);
 			if (c0 != null) {
 				c.setForeground(c0);
+			}
+			else {
+				c.setForeground(list.getForeground());
 			}
 			return c;
 		}
