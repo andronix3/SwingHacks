@@ -39,7 +39,7 @@ public class GComboBoxCalendarEditor extends GComboBoxEditor {
 		GComboBoxCalendarPanel panel = getComponent();
 		String s = panel.list.getSelectedValue();
 		if (s != null && !s.isEmpty()) {
-			return panel.cal.getTime();
+			return panel.getTime();
 		}
 		return null;
 	}

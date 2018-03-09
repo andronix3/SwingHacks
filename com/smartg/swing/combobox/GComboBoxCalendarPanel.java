@@ -178,7 +178,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		}
 	});
 
-	Calendar cal;
+	Calendar calendar;
 	private Box topBox;
 
 	private String[] values = new String[35 + 7];
@@ -226,7 +226,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 	}
 
 	public GComboBoxCalendarPanel(Calendar cal) {
-		this.cal = cal;
+		this.calendar = cal;
 
 		t.setInitialDelay(500);
 
@@ -281,7 +281,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 				String s = list.getSelectedValue();
 				if (s.length() > 0) {
 					int day = Integer.parseInt(s);
-					GComboBoxCalendarPanel.this.cal.set(Calendar.DAY_OF_MONTH, day);
+					GComboBoxCalendarPanel.this.calendar.set(Calendar.DAY_OF_MONTH, day);
 					updateValues();
 					fireChangeEvent();
 				}
@@ -306,33 +306,37 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		middlePanel.add(list);
 		middlePanel.add(cdays, BorderLayout.NORTH);
 	}
+	
+	public Date getTime() {
+		return calendar.getTime();
+	}
 
 	public void setDate(Date date) {
-		cal.setTime(date);
+		calendar.setTime(date);
 		updateValues();
-		int day = cal.get(Calendar.DAY_OF_MONTH);
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
 		String dom = "" + day;
 		list.setSelectedValue(dom, false);
 	}
 
 	private void goNextMonth() throws NumberFormatException {
-		int month = cal.get(Calendar.MONTH);
-		int year = cal.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH);
+		int year = calendar.get(Calendar.YEAR);
 
 		month += 1;
 		if (month > Calendar.DECEMBER) {
 			month = Calendar.JANUARY;
 			year++;
 		}
-		cal.set(Calendar.YEAR, year);
-		cal.set(Calendar.MONTH, month);
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.MONTH, month);
 
 		updateValues();
 
 		String s = list.getSelectedValue();
 		if (s != null && s.length() > 0) {
 			int day = Integer.parseInt(s);
-			cal.set(Calendar.DAY_OF_MONTH, day);
+			calendar.set(Calendar.DAY_OF_MONTH, day);
 		}
 
 		list.repaint();
@@ -355,57 +359,57 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 	}
 
 	private void goPrevMonth() throws NumberFormatException {
-		int month = cal.get(Calendar.MONTH);
-		int year = cal.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH);
+		int year = calendar.get(Calendar.YEAR);
 
 		month -= 1;
 		if (month < Calendar.JANUARY) {
 			month = Calendar.DECEMBER;
 			year--;
 		}
-		cal.set(Calendar.YEAR, year);
-		cal.set(Calendar.MONTH, month);
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.MONTH, month);
 
 		updateValues();
 
 		String s = list.getSelectedValue();
 		if (s != null && s.length() > 0) {
 			int day = Integer.parseInt(s);
-			cal.set(Calendar.DAY_OF_MONTH, day);
+			calendar.set(Calendar.DAY_OF_MONTH, day);
 		}
 		list.repaint();
 		fireChangeEvent();
 	}
 
 	private void goPrevYear() throws NumberFormatException {
-		int year = cal.get(Calendar.YEAR);
+		int year = calendar.get(Calendar.YEAR);
 
 		year -= 1;
-		cal.set(Calendar.YEAR, year);
+		calendar.set(Calendar.YEAR, year);
 
 		updateValues();
 
 		String s = list.getSelectedValue();
 		if (s != null && s.length() > 0) {
 			int day = Integer.parseInt(s);
-			cal.set(Calendar.DAY_OF_MONTH, day);
+			calendar.set(Calendar.DAY_OF_MONTH, day);
 		}
 		list.repaint();
 		fireChangeEvent();
 	}
 
 	private void goNextYear() throws NumberFormatException {
-		int year = cal.get(Calendar.YEAR);
+		int year = calendar.get(Calendar.YEAR);
 
 		year += 1;
-		cal.set(Calendar.YEAR, year);
+		calendar.set(Calendar.YEAR, year);
 
 		updateValues();
 
 		String s = list.getSelectedValue();
 		if (s != null && s.length() > 0) {
 			int day = Integer.parseInt(s);
-			cal.set(Calendar.DAY_OF_MONTH, day);
+			calendar.set(Calendar.DAY_OF_MONTH, day);
 		}
 		list.repaint();
 		fireChangeEvent();
@@ -419,21 +423,21 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 
 	private void updateValues() {
 
-		int firstDayOfWeek = cal.getFirstDayOfWeek();
-		int month = cal.get(Calendar.MONTH);
-		int year = cal.get(Calendar.YEAR);
-		int day = cal.get(Calendar.DAY_OF_MONTH);
+		int firstDayOfWeek = calendar.getFirstDayOfWeek();
+		int month = calendar.get(Calendar.MONTH);
+		int year = calendar.get(Calendar.YEAR);
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-		cal.set(year, month, 1);
-		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+		calendar.set(year, month, 1);
+		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
-		cal.set(year, month, day);
+		calendar.set(year, month, day);
 
 		for (int i = 0; i < values.length; i++) {
 			values[i] = "";
 		}
 
-		Map<String, Integer> displayNames = cal.getDisplayNames(Calendar.DAY_OF_WEEK, Calendar.SHORT,
+		Map<String, Integer> displayNames = calendar.getDisplayNames(Calendar.DAY_OF_WEEK, Calendar.SHORT,
 				Locale.getDefault());
 
 		Set<String> keySet = displayNames.keySet();
@@ -453,12 +457,12 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 			dayOfWeek += 7;
 		}
 
-		int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+		int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
 		for (int i = 0; i < daysInMonth; i++) {
 			values[i + dayOfWeek] = "" + (i + 1);
 		}
 
-		current.setText(cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + " " + cal.get(Calendar.YEAR));
+		current.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + " " + calendar.get(Calendar.YEAR));
 	}
 }
