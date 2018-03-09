@@ -212,6 +212,18 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 			listeners[i].stateChanged(e);
 		}
 	}
+	
+	public GComboBoxCalendarPanel(int year, int month, int day) {
+		this(createCalendar(year, month, day));
+	}
+
+	private static Calendar createCalendar(int year, int month, int day) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.MONTH, month);
+		calendar.set(Calendar.DAY_OF_MONTH, day);
+		return calendar;
+	}
 
 	public GComboBoxCalendarPanel(Calendar cal) {
 		this.cal = cal;
