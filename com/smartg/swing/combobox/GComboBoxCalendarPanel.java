@@ -9,10 +9,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -67,8 +69,10 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 	private Box topBox;
 
 	private String[] values = new String[35 + 7];
-		
-	private Map<DateRange, Color> highlightMap = new HashMap<>();
+
+	private Map<Color, List<DateRangeChecker>> highlightMap = new LinkedHashMap<>();
+
+	private boolean showSelection = true;
 
 	public GComboBoxCalendarPanel(Calendar cal) {
 		this.calendar = cal;
@@ -151,7 +155,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		middlePanel.add(list);
 		middlePanel.add(cdays, BorderLayout.NORTH);
 	}
-	
+
 	public GComboBoxCalendarPanel(int year, int month, int day) {
 		this(createCalendar(year, month, day));
 	}
@@ -182,18 +186,19 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		String dom = "" + day;
 		list.setSelectedValue(dom, false);
 	}
-	
-	public void setHighlightColorForRange(DateRange range, Color color) {
-		if(color != null) {
-			highlightMap.put(range, color);
+
+	public void addHighlightRange(DateRange range, Color color) {
+		List<DateRangeChecker> list = highlightMap.get(color);
+		if (list == null) {
+			list = new ArrayList<>();
+			highlightMap.put(color, list);
 		}
-		else {
-			highlightMap.remove(range, color);	
-		}
+		list.add(range);
 	}
 	
-	public Iterator<DateRange> ranges() {
-		return highlightMap.keySet().iterator();
+	public void removeHighlightRange(DateRangeChecker range, Color color) {
+		List<? extends DateRangeChecker> list = highlightMap.get(color);
+		list.remove(range);
 	}
 
 	protected void fireChangeEvent() {
@@ -203,8 +208,6 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 			listeners[i].stateChanged(e);
 		}
 	}
-	
-	private boolean showSelection = true;
 
 	protected Color getCellBackground(int x, int y, boolean selected) {
 		int index = 7 * y + x;
@@ -212,37 +215,39 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		if (s == null || s.isEmpty()) {
 			return null;
 		}
-		
+
 		if (!selected) {
 			if (isHover(x, y)) {
 				if (hoverBG == null) {
 					hoverBG = createHoverColor(getList().getSelectionBackground());
 				}
 				return hoverBG;
-			}
-			else {
-				Set<Entry<DateRange,Color>> entrySet = highlightMap.entrySet();
+			} else {
+				Set<Entry<Color, List<DateRangeChecker>>> entrySet = highlightMap.entrySet();
 				int day = Integer.parseInt(s);
 				int year = getYear();
 				int month = getMonth();
-				for(Entry<DateRange, Color> entry: entrySet) {
-					if(entry.getKey().inRange(year, month, day)) {
-						return entry.getValue();
+				for (Entry<Color, List<DateRangeChecker>> entry : entrySet) {
+					List<DateRangeChecker> ranges = entry.getValue();
+					for (DateRangeChecker range : ranges) {
+						if (range.inRange(year, month, day)) {
+							return entry.getKey();
+						}
 					}
 				}
 			}
 		}
 		return null;
 	}
-	
+
 	public int getYear() {
 		return calendar.get(Calendar.YEAR);
 	}
-	
+
 	public int getMonth() {
 		return calendar.get(Calendar.MONTH);
 	}
-	
+
 	public int getDayOfMonth() {
 		return calendar.get(Calendar.DAY_OF_MONTH);
 	}

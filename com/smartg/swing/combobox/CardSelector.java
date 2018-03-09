@@ -93,7 +93,7 @@ public class CardSelector extends GComboBox2D_DataEditor<String> {
 		frame.add(new GComboBox<String>(new CardSelector()));
 		GComboBoxCalendarEditor ctrl = new GComboBoxCalendarEditor();
 		GComboBoxCalendarPanel component = ctrl.getComponent();
-		component.setHighlightColorForRange(new DateRange(new Date(), new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000)), Color.GRAY);
+		component.addHighlightRange(new DateRange(new Date(), new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000)), Color.GRAY);
 		component.setCellSize(50);
 		frame.add(new GComboBox<String>(ctrl));
 		frame.pack();

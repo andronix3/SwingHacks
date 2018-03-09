@@ -3,24 +3,35 @@ package com.smartg.swing.combobox;
 import java.util.Calendar;
 import java.util.Date;
 
-public class DateRange {
-	private final Date from;
-	private final Date to;
+public class DateRange implements DateRangeChecker {
+	private Date startDate;
+	private Date endDate;
 
 	public DateRange(Date from, Date to) {
-		this.from = from;
-		this.to = to;
+		this.startDate = from;
+		this.endDate = to;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((from == null) ? 0 : from.hashCode());
-		result = prime * result + ((to == null) ? 0 : to.hashCode());
-		return result;
+	public Date getStartDate() {
+		return startDate;
 	}
-	
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.smartg.swing.combobox.DateRangeChecker#inRange(int, int, int)
+	 */
+	@Override
 	public boolean inRange(int year, int month, int dayOfMonth) {
 		Calendar c = Calendar.getInstance();
 		c.set(Calendar.YEAR, year);
@@ -29,45 +40,31 @@ public class DateRange {
 		return inRange(c);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.smartg.swing.combobox.DateRangeChecker#inRange(java.util.Calendar)
+	 */
+	@Override
 	public boolean inRange(Calendar c) {
 		return inRange(c.getTime());
 	}
 
-	public boolean inRange(Date time) {
-		if(from.equals(time)) {
-			return true;
-		}
-		if(to.equals(time)) {
-			return true;
-		}
-		return from.before(time) && to.after(time);
-	}	
-
+	/* (non-Javadoc)
+	 * @see com.smartg.swing.combobox.DateRangeChecker#inRange(java.util.Date)
+	 */
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean inRange(Date time) {
+		if (startDate.equals(time)) {
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DateRange other = (DateRange) obj;
-		if (from == null) {
-			if (other.from != null)
-				return false;
-		} else if (!from.equals(other.from))
-			return false;
-		if (to == null) {
-			if (other.to != null)
-				return false;
-		} else if (!to.equals(other.to))
-			return false;
-		return true;
+		}
+		if (endDate.equals(time)) {
+			return true;
+		}
+		return startDate.before(time) && endDate.after(time);
 	}
 
 	@Override
 	public String toString() {
-		return "DateRange [from=" + from + ", to=" + to + "]";
+		return "DateRange [from=" + startDate + ", to=" + endDate + "]";
 	}
 
 }
