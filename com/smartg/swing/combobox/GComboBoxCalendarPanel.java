@@ -154,9 +154,9 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		}
 	}
 
-	GoType goType = GoType.NoGo;
+	private GoType goType = GoType.NoGo;
 
-	Timer t = new Timer(200, new ActionListener() {
+	private Timer t = new Timer(200, new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 			switch (goType) {
 			case NoGo:
@@ -178,24 +178,24 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		}
 	});
 
-	Calendar cal;
-	Box topBox;
+	private Calendar cal;
+	private Box topBox;
 
-	String[] values = new String[35 + 7];
-	String[] days = new String[7];
+	private String[] values = new String[35 + 7];
+	private String[] days = new String[7];
 
-	JList<String> cdays = new JList<String>(days);
+	private JList<String> cdays = new JList<String>(days);
 
-	JLabel prevMonth;
-	JLabel nextMonth;
+	private JLabel prevMonth;
+	private JLabel nextMonth;
 
-	JLabel prevYear;
-	JLabel nextYear;
+	private JLabel prevYear;
+	private JLabel nextYear;
 
-	JLabel current = new JLabel();
-	JPanel middlePanel = new JPanel(new BorderLayout());
+	private JLabel current = new JLabel();
+	private JPanel middlePanel = new JPanel(new BorderLayout());
 
-	EventListenerList listenerList = new EventListenerList();
+	protected EventListenerList listenerList = new EventListenerList();
 
 	public void addChangeListener(ChangeListener l) {
 		listenerList.add(ChangeListener.class, l);
@@ -205,7 +205,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		listenerList.remove(ChangeListener.class, l);
 	}
 
-	void fireChangeEvent() {
+	protected void fireChangeEvent() {
 		ChangeListener[] listeners = listenerList.getListeners(ChangeListener.class);
 		ChangeEvent e = new ChangeEvent(this);
 		for (int i = 0; i < listeners.length; i++) {
@@ -310,6 +310,9 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 	public void setDate(Date date) {
 		cal.setTime(date);
 		updateValues();
+		int day = cal.get(Calendar.DAY_OF_MONTH);
+		String dom = "" + day;
+		list.setSelectedValue(dom, false);
 	}
 
 	private void goNextMonth() throws NumberFormatException {
