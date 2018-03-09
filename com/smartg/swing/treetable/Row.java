@@ -103,6 +103,19 @@ public class Row implements Serializable {
 		}
 		this.prevSieblingId = prevSieblingId;
 	}
+	
+	public Object [] copyData() {
+		return data.toArray();
+	}
+	
+	public void setData(Object [] data) {
+		Objects.requireNonNull(data);
+		if(data.length != this.data.size()) {
+			throw new IllegalArgumentException();
+		}
+		this.data = Arrays.asList(data);
+		fireTableCellUpdated(-1);
+	}
 
 	@Override
 	public int hashCode() {
