@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 public class GComboBoxEditorPanel<E> extends JPanel {
@@ -34,7 +35,7 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 
 	public GComboBoxEditorPanel() {
 		list.addMouseMotionListener(new HoverHandler());
-		list.setCellRenderer(new CellBorderRenderer<E>());
+		list.setCellRenderer(new MyCellRenderer<E>());
 	}
 
 	public JList<E> getList() {
@@ -62,6 +63,11 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 		this.selectedBorderColor = selectedBorderColor;
 	}
 
+	public boolean isCellSelected(int x, int y) {
+		int index = y * getHorizontalCellCount() + x;
+		return list.getSelectedIndex() == index;
+	}
+
 	protected Color createHoverColor(Color c) {
 		int r = (c.getRed() + 255) / 2;
 		int g = (c.getGreen() + 255) / 2;
@@ -87,6 +93,10 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 			}
 			return hoverBG;
 		}
+		return null;
+	}
+
+	protected Border getCellBorder(int x, int y, boolean selected) {
 		return null;
 	}
 
@@ -122,7 +132,7 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 		return hover.x == x && hover.y == y;
 	}
 
-	protected class CellBorderRenderer<T> extends CellRenderers.NoEmptySelection_ListCellRenderer<T> {
+	protected class MyCellRenderer<T> extends CellRenderers.NoEmptySelection_ListCellRenderer<T> {
 
 		private int cx, cy;
 
@@ -134,6 +144,7 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 			int w = getHorizontalCellCount();
 			cy = index / w;
 			cx = index - w * cy;
+			isSelected = isCellSelected(cx, cy);
 			Color c0 = getCellBackground(cx, cy, isSelected);
 			if (c0 != null) {
 				c.setBackground(c0);
@@ -146,14 +157,8 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 			} else {
 				c.setForeground(list.getForeground());
 			}
-			c.setBorder(null);
 
-			if (isSelected && drawSelectionBorder) {
-				Color borderColor = getSelectedBorderColor();
-				if (borderColor != null) {
-					c.setBorder(new LineBorder(borderColor, 2));
-				}
-			}
+			c.setBorder(getCellBorder(cx, cy, isSelected));
 
 			return c;
 		}
