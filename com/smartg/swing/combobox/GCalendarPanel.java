@@ -237,6 +237,10 @@ public class GCalendarPanel extends GComboBoxEditorPanel<String> {
 		calendar.setTime(date);
 		selection.remove(new CalendarFacade(calendar));
 	}
+	
+	public void clear() {
+		this.selection.clear();
+	}
 
 	public int getDayOfMonth() {
 		return date.get(Calendar.DAY_OF_MONTH);
