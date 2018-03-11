@@ -20,7 +20,7 @@ public class GComboBoxCalendarEditor extends GComboBoxEditor {
 
 	@SuppressWarnings("unchecked")
 	public GComboBoxCalendarEditor() {
-		super(new GComboBoxCalendarPanel(Calendar.getInstance()));
+		super(new GCalendarPanel(Calendar.getInstance()));
 	}
 
 	@Override
@@ -33,12 +33,12 @@ public class GComboBoxCalendarEditor extends GComboBoxEditor {
 		return getTime();
 	}
 
-	public GComboBoxCalendarPanel getComponent() {
-		return (GComboBoxCalendarPanel) component;
+	public GCalendarPanel getComponent() {
+		return (GCalendarPanel) component;
 	}
 
 	protected Date getTime() {
-		GComboBoxCalendarPanel panel = getComponent();
+		GCalendarPanel panel = getComponent();
 		String s = panel.list.getSelectedValue();
 		if (s != null && !s.isEmpty()) {
 			return panel.getTime();

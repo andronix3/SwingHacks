@@ -146,7 +146,6 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 			} else {
 				c.setForeground(list.getForeground());
 			}
-
 			c.setBorder(null);
 
 			if (isSelected && drawSelectionBorder) {

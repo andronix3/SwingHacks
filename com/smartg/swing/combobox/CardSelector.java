@@ -93,8 +93,8 @@ public class CardSelector extends GComboBox2D_DataEditor<String> {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new GComboBox<String>(new CardSelector()));
 		GComboBoxCalendarEditor ctrl = new GComboBoxCalendarEditor();
-		GComboBoxCalendarPanel component = ctrl.getComponent();
-		component.setSelectedBorderColor(Color.CYAN);
+		GCalendarPanel calendarPanel = ctrl.getComponent();
+		calendarPanel.setSelectedBorderColor(Color.CYAN);
 		Calendar calendar = Calendar.getInstance();
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 		int add = dayOfWeek - Calendar.MONDAY;
@@ -112,8 +112,9 @@ public class CardSelector extends GComboBox2D_DataEditor<String> {
 		DateRange range = new DateRange(start, end);
 		range.setIncludeRangeStart(true);
 		
-		component.addHighlightRange(range, Color.GRAY);
-		component.setCellSize(50);
+		calendarPanel.addHighlightRange(range, Color.GRAY);
+		calendarPanel.setCellSize(50);
+		calendarPanel.setDateChangeAllowed(false);
 		frame.add(new GComboBox<String>(ctrl));
 		frame.pack();
 		frame.setVisible(true);

@@ -32,10 +32,9 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import com.smartg.java.util.StackTraceUtil;
 import com.smartg.swing.FixedListModel;
 
-public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
+public class GCalendarPanel extends GComboBoxEditorPanel<String> {
 
 	private static final long serialVersionUID = -8617553669929693130L;
 
@@ -74,7 +73,9 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 
 	private boolean showSelection = true;
 
-	public GComboBoxCalendarPanel(Calendar cal) {
+	private boolean dateChangeAllowed = true;
+
+	public GCalendarPanel(Calendar cal) {
 		this.calendar = cal;
 
 		t.setInitialDelay(500);
@@ -127,12 +128,21 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 
 		list.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
-				String s = list.getSelectedValue();
-				if (s.length() > 0) {
-					int day = Integer.parseInt(s);
-					GComboBoxCalendarPanel.this.calendar.set(Calendar.DAY_OF_MONTH, day);
-					updateValues();
-					fireChangeEvent();
+				if (ignoreValueChanged) {
+					return;
+				}
+				if (dateChangeAllowed) {
+					String s = list.getSelectedValue();
+					if (s != null && s.length() > 0) {
+						int day = Integer.parseInt(s);
+						GCalendarPanel.this.calendar.set(Calendar.DAY_OF_MONTH, day);
+						setDate(calendar.getTime());
+					}
+				}
+				else {
+					ignoreValueChanged = true;
+					list.setSelectedValue("" + GCalendarPanel.this.date.get(Calendar.DAY_OF_MONTH), false);
+					ignoreValueChanged = false;
 				}
 			}
 		});
@@ -156,7 +166,15 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		middlePanel.add(cdays, BorderLayout.NORTH);
 	}
 
-	public GComboBoxCalendarPanel(int year, int month, int day) {
+	public boolean isDateChangeAllowed() {
+		return dateChangeAllowed;
+	}
+
+	public void setDateChangeAllowed(boolean dateChangeAllowed) {
+		this.dateChangeAllowed = dateChangeAllowed;
+	}
+
+	public GCalendarPanel(int year, int month, int day) {
 		this(createCalendar(year, month, day));
 	}
 
@@ -178,13 +196,15 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		cdays.setFixedCellWidth(size);
 	}
 
+	private Calendar date = Calendar.getInstance();
+
 	public void setDate(Date date) {
-		StackTraceUtil.warning("setDate");
-		calendar.setTime(date);
+		this.date.setTime(date);
+		this.calendar.setTime(date);
 		updateValues();
 		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		String dom = "" + day;
-		list.setSelectedValue(dom, false);
+		list.setSelectedValue("" + day, false);
+		fireChangeEvent();
 	}
 
 	public void addHighlightRange(DateRange range, Color color) {
@@ -229,9 +249,9 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 			}
 			return hoverBG;
 		}
-		
+
 		Color highlightColor = getHighlightColor(s);
-		if(highlightColor != null) {
+		if (highlightColor != null) {
 			return highlightColor;
 		}
 		if (selected && showSelection) {
@@ -243,8 +263,8 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 	public Color getHighlightColor(String s) {
 		Set<Entry<Color, List<DateRangeChecker>>> entrySet = highlightMap.entrySet();
 		int day = Integer.parseInt(s);
-		int year = getYear();
-		int month = getMonth();
+		int year = calendar.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH);
 		for (Entry<Color, List<DateRangeChecker>> entry : entrySet) {
 			List<DateRangeChecker> ranges = entry.getValue();
 			for (DateRangeChecker range : ranges) {
@@ -257,15 +277,15 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 	}
 
 	public int getYear() {
-		return calendar.get(Calendar.YEAR);
+		return date.get(Calendar.YEAR);
 	}
 
 	public int getMonth() {
-		return calendar.get(Calendar.MONTH);
+		return date.get(Calendar.MONTH);
 	}
 
 	public int getDayOfMonth() {
-		return calendar.get(Calendar.DAY_OF_MONTH);
+		return date.get(Calendar.DAY_OF_MONTH);
 	}
 
 	private void goNextMonth() throws NumberFormatException {
@@ -282,14 +302,19 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 
 		updateValues();
 
-		String s = list.getSelectedValue();
-		if (s != null && s.length() > 0) {
-			int day = Integer.parseInt(s);
-			calendar.set(Calendar.DAY_OF_MONTH, day);
-		}
+		// String s = list.getSelectedValue();
+		// if (s != null && s.length() > 0) {
+		// int day = Integer.parseInt(s);
+		// calendar.set(Calendar.DAY_OF_MONTH, day);
+		// }
 
 		list.repaint();
 		fireChangeEvent();
+	}
+
+	private boolean sameYearAndMonth() {
+		return (date.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)
+				&& date.get(Calendar.MONTH) == calendar.get(Calendar.MONTH));
 	}
 
 	private void goNextYear() throws NumberFormatException {
@@ -300,11 +325,11 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 
 		updateValues();
 
-		String s = list.getSelectedValue();
-		if (s != null && s.length() > 0) {
-			int day = Integer.parseInt(s);
-			calendar.set(Calendar.DAY_OF_MONTH, day);
-		}
+		// String s = list.getSelectedValue();
+		// if (s != null && s.length() > 0) {
+		// int day = Integer.parseInt(s);
+		// calendar.set(Calendar.DAY_OF_MONTH, day);
+		// }
 		list.repaint();
 		fireChangeEvent();
 	}
@@ -323,11 +348,11 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 
 		updateValues();
 
-		String s = list.getSelectedValue();
-		if (s != null && s.length() > 0) {
-			int day = Integer.parseInt(s);
-			calendar.set(Calendar.DAY_OF_MONTH, day);
-		}
+		// String s = list.getSelectedValue();
+		// if (s != null && s.length() > 0) {
+		// int day = Integer.parseInt(s);
+		// calendar.set(Calendar.DAY_OF_MONTH, day);
+		// }
 		list.repaint();
 		fireChangeEvent();
 	}
@@ -340,17 +365,19 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 
 		updateValues();
 
-		String s = list.getSelectedValue();
-		if (s != null && s.length() > 0) {
-			int day = Integer.parseInt(s);
-			calendar.set(Calendar.DAY_OF_MONTH, day);
-		}
+		// String s = list.getSelectedValue();
+		// if (s != null && s.length() > 0) {
+		// int day = Integer.parseInt(s);
+		// calendar.set(Calendar.DAY_OF_MONTH, day);
+		// }
 		list.repaint();
 		fireChangeEvent();
 	}
 
-	private void updateValues() {
+	private boolean ignoreValueChanged;
 
+	private void updateValues() {
+		ignoreValueChanged = true;
 		int firstDayOfWeek = calendar.getFirstDayOfWeek();
 		int month = calendar.get(Calendar.MONTH);
 		int year = calendar.get(Calendar.YEAR);
@@ -393,6 +420,13 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 
 		current.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + " "
 				+ calendar.get(Calendar.YEAR));
+
+		if (sameYearAndMonth()) {
+			list.setSelectedValue("" + date.get(Calendar.DAY_OF_MONTH), false);
+		} else {
+			list.clearSelection();
+		}
+		ignoreValueChanged = false;
 	}
 
 	static enum GoType {
