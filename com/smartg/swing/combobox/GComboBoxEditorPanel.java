@@ -13,30 +13,71 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
 
 public class GComboBoxEditorPanel<E> extends JPanel {
 
 	private static final long serialVersionUID = -2852265896971447462L;
 
-	final protected JList<E> list = new JList<E>();
-
-	protected int horizontalAlignment = SwingConstants.CENTER;
 	protected boolean drawGrid = true;
 
-	public JList<E> getList() {
-		return list;
-	}
+	protected int horizontalAlignment = SwingConstants.CENTER;
+	protected final Point hover = new Point();
+
+	protected Color hoverBG;
+
+	final protected JList<E> list = new JList<E>();
+
+	private boolean drawSelectionBorder = true;
+
+	private Color selectedBorderColor = Color.MAGENTA;
 
 	public GComboBoxEditorPanel() {
 		list.addMouseMotionListener(new HoverHandler());
 		list.setCellRenderer(new CellBorderRenderer<E>());
 	}
 
-	protected Color hoverBG;
-	protected final Point hover = new Point();
+	public JList<E> getList() {
+		return list;
+	}
 
-	protected boolean isHover(int x, int y) {
-		return hover.x == x && hover.y == y;
+	public Color getSelectedBorderColor() {
+		return selectedBorderColor;
+	}
+
+	public boolean isDrawSelectionBorder() {
+		return drawSelectionBorder;
+	}
+
+	public void setCellSize(int size) {
+		list.setFixedCellHeight(size);
+		list.setFixedCellWidth(size);
+	}
+
+	public void setDrawSelectionBorder(boolean drawSelectionBorder) {
+		this.drawSelectionBorder = drawSelectionBorder;
+	}
+
+	public void setSelectedBorderColor(Color selectedBorderColor) {
+		this.selectedBorderColor = selectedBorderColor;
+	}
+
+	protected Color createHoverColor(Color c) {
+		int r = (c.getRed() + 255) / 2;
+		int g = (c.getGreen() + 255) / 2;
+		int b = (c.getBlue() + 255) / 2;
+		return new Color(r, g, b);
+	}
+
+	protected void drawCellBorder(Graphics g, Dimension d, int x, int y) {
+		Color c = getCellBorderColor(x, y);
+		if (c != null) {
+			g.setColor(c);
+		} else {
+			g.setColor(Color.DARK_GRAY);
+		}
+		g.drawLine(d.width - 1, 0, d.width - 1, d.height);
+		g.drawLine(0, d.height - 1, d.width, d.height - 1);
 	}
 
 	protected Color getCellBackground(int x, int y, boolean selected) {
@@ -49,11 +90,15 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 		return null;
 	}
 
-	protected Color createHoverColor(Color c) {
-		int r = (c.getRed() + 255) / 2;
-		int g = (c.getGreen() + 255) / 2;
-		int b = (c.getBlue() + 255) / 2;
-		return new Color(r, g, b);
+	/**
+	 * @param x
+	 *            horizontal index of list cell
+	 * @param y
+	 *            vertical coordinate of list cell
+	 * 
+	 */
+	protected Color getCellBorderColor(int x, int y) {
+		return null;
 	}
 
 	/**
@@ -69,57 +114,12 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 		return null;
 	}
 
-	/**
-	 * @param x
-	 *            horizontal index of list cell
-	 * @param y
-	 *            vertical coordinate of list cell
-	 * 
-	 */
-	protected Color getCellBorderColor(int x, int y) {
-		return null;
-	}
-
-	protected void drawCellBorder(Graphics g, Dimension d, int x, int y) {
-		Color c = getCellBorderColor(x, y);
-		if (c != null) {
-			g.setColor(c);
-		} else {
-			g.setColor(Color.DARK_GRAY);
-		}
-		g.drawLine(d.width - 1, 0, d.width - 1, d.height);
-		g.drawLine(0, d.height - 1, d.width, d.height - 1);
-	}
-
 	protected int getHorizontalCellCount() {
 		return list.getModel().getSize() / list.getVisibleRowCount();
 	}
 
-	protected class HoverHandler extends MouseAdapter {
-		private final Point p = new Point();
-		private int lastIndex;
-
-		@Override
-		public void mouseMoved(MouseEvent e) {
-			p.x = e.getX();
-			p.y = e.getY();
-
-			int index = getList().locationToIndex(p);
-			int w = getHorizontalCellCount();
-			int cy = index / w;
-			int cx = index - w * cy;
-			hover.x = cx;
-			hover.y = cy;
-			if (index != lastIndex) {
-				getList().repaint();
-			}
-			lastIndex = index;
-		}
-	}
-
-	public void setCellSize(int size) {
-		list.setFixedCellHeight(size);
-		list.setFixedCellWidth(size);
+	protected boolean isHover(int x, int y) {
+		return hover.x == x && hover.y == y;
 	}
 
 	protected class CellBorderRenderer<T> extends CellRenderers.NoEmptySelection_ListCellRenderer<T> {
@@ -137,17 +137,25 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 			Color c0 = getCellBackground(cx, cy, isSelected);
 			if (c0 != null) {
 				c.setBackground(c0);
-			}
-			else {
+			} else {
 				c.setBackground(list.getBackground());
 			}
 			c0 = getCellForeground(cx, cy, isSelected);
 			if (c0 != null) {
 				c.setForeground(c0);
-			}
-			else {
+			} else {
 				c.setForeground(list.getForeground());
 			}
+
+			c.setBorder(null);
+
+			if (isSelected && drawSelectionBorder) {
+				Color borderColor = getSelectedBorderColor();
+				if (borderColor != null) {
+					c.setBorder(new LineBorder(borderColor, 2));
+				}
+			}
+
 			return c;
 		}
 
@@ -164,6 +172,28 @@ public class GComboBoxEditorPanel<E> extends JPanel {
 					}
 				}
 			};
+		}
+	}
+
+	protected class HoverHandler extends MouseAdapter {
+		private int lastIndex;
+		private final Point p = new Point();
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			p.x = e.getX();
+			p.y = e.getY();
+
+			int index = getList().locationToIndex(p);
+			int w = getHorizontalCellCount();
+			int cy = index / w;
+			int cx = index - w * cy;
+			hover.x = cx;
+			hover.y = cy;
+			if (index != lastIndex) {
+				getList().repaint();
+			}
+			lastIndex = index;
 		}
 	}
 }

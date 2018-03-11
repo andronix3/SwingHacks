@@ -1,6 +1,7 @@
 package com.smartg.swing.combobox;
 
 import java.awt.Color;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -93,7 +94,25 @@ public class CardSelector extends GComboBox2D_DataEditor<String> {
 		frame.add(new GComboBox<String>(new CardSelector()));
 		GComboBoxCalendarEditor ctrl = new GComboBoxCalendarEditor();
 		GComboBoxCalendarPanel component = ctrl.getComponent();
-		component.addHighlightRange(new DateRange(new Date(), new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000)), Color.GRAY);
+		component.setSelectedBorderColor(Color.CYAN);
+		Calendar calendar = Calendar.getInstance();
+		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+		int add = dayOfWeek - Calendar.MONDAY;
+		if (add < 0) {
+			add += 7;
+		}
+
+		int dayInMillis = 24 * 60 * 60 * 1000;
+		Date start = new Date(new Date().getTime() + 0 * dayInMillis);
+		Date end = new Date(start.getTime() + 5 * dayInMillis);
+		SimpleDateFormat format = new SimpleDateFormat("dd MMMM YYYY");
+		System.out.println(format.format(start));
+		System.out.println(format.format(end));
+		
+		DateRange range = new DateRange(start, end);
+		range.setIncludeRangeStart(true);
+		
+		component.addHighlightRange(range, Color.GRAY);
 		component.setCellSize(50);
 		frame.add(new GComboBox<String>(ctrl));
 		frame.pack();

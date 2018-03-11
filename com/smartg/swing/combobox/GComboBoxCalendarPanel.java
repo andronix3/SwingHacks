@@ -195,7 +195,7 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		}
 		list.add(range);
 	}
-	
+
 	public void removeHighlightRange(DateRangeChecker range, Color color) {
 		List<? extends DateRangeChecker> list = highlightMap.get(color);
 		list.remove(range);
@@ -209,31 +209,47 @@ public class GComboBoxCalendarPanel extends GComboBoxEditorPanel<String> {
 		}
 	}
 
+	public boolean isShowSelection() {
+		return showSelection;
+	}
+
+	public void setShowSelection(boolean showSelection) {
+		this.showSelection = showSelection;
+	}
+
 	protected Color getCellBackground(int x, int y, boolean selected) {
 		int index = 7 * y + x;
 		String s = list.getModel().getElementAt(index);
 		if (s == null || s.isEmpty()) {
 			return null;
 		}
+		if (isHover(x, y)) {
+			if (hoverBG == null) {
+				hoverBG = createHoverColor(getList().getSelectionBackground());
+			}
+			return hoverBG;
+		}
+		
+		Color highlightColor = getHighlightColor(s);
+		if(highlightColor != null) {
+			return highlightColor;
+		}
+		if (selected && showSelection) {
+			return list.getSelectionBackground();
+		}
+		return null;
+	}
 
-		if (!selected) {
-			if (isHover(x, y)) {
-				if (hoverBG == null) {
-					hoverBG = createHoverColor(getList().getSelectionBackground());
-				}
-				return hoverBG;
-			} else {
-				Set<Entry<Color, List<DateRangeChecker>>> entrySet = highlightMap.entrySet();
-				int day = Integer.parseInt(s);
-				int year = getYear();
-				int month = getMonth();
-				for (Entry<Color, List<DateRangeChecker>> entry : entrySet) {
-					List<DateRangeChecker> ranges = entry.getValue();
-					for (DateRangeChecker range : ranges) {
-						if (range.inRange(year, month, day)) {
-							return entry.getKey();
-						}
-					}
+	public Color getHighlightColor(String s) {
+		Set<Entry<Color, List<DateRangeChecker>>> entrySet = highlightMap.entrySet();
+		int day = Integer.parseInt(s);
+		int year = getYear();
+		int month = getMonth();
+		for (Entry<Color, List<DateRangeChecker>> entry : entrySet) {
+			List<DateRangeChecker> ranges = entry.getValue();
+			for (DateRangeChecker range : ranges) {
+				if (range.inRange(year, month, day)) {
+					return entry.getKey();
 				}
 			}
 		}

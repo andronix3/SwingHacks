@@ -6,7 +6,10 @@ import java.util.Date;
 public class DateRange implements DateRangeChecker {
 	private Date startDate;
 	private Date endDate;
-	
+
+	private boolean includeRangeStart;
+	private boolean includeRangeEnd;
+
 	public DateRange() {
 
 	}
@@ -30,6 +33,22 @@ public class DateRange implements DateRangeChecker {
 
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+
+	public boolean isIncludeRangeStart() {
+		return includeRangeStart;
+	}
+
+	public void setIncludeRangeStart(boolean includeRangeStart) {
+		this.includeRangeStart = includeRangeStart;
+	}
+
+	public boolean isIncludeRangeEnd() {
+		return includeRangeEnd;
+	}
+
+	public void setIncludeRangeEnd(boolean includeRangeEnd) {
+		this.includeRangeEnd = includeRangeEnd;
 	}
 
 	/*
@@ -80,11 +99,11 @@ public class DateRange implements DateRangeChecker {
 	}
 
 	private boolean afterOrEquals(Date time, Date startDate) {
-		return time.after(startDate) || time.equals(startDate);
+		return time.after(startDate) || (includeRangeStart && time.equals(startDate));
 	}
 
 	private boolean beforeOrEquals(Date time, Date endDate) {
-		return time.before(endDate) || time.equals(endDate);
+		return time.before(endDate) || (includeRangeEnd && time.equals(endDate));
 	}
 
 	@Override
