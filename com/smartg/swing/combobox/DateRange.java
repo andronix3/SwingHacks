@@ -10,8 +10,8 @@ public class DateRange implements DateRangeChecker {
 
 	private boolean includeRangeStart;
 	private boolean includeRangeEnd;
-        
-        private DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT);
+
+	private DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT);
 
 	public DateRange() {
 
@@ -111,15 +111,15 @@ public class DateRange implements DateRangeChecker {
 
 	@Override
 	public String toString() {
-            String sd = "";
-            String ed = "";
-            if(startDate != null) {
-               sd = "from=" + format.format(startDate);
-            }
-            if(endDate != null) {
-               ed = "to=" + format.format(endDate);
-            }
-		return "DateRange [" + sd + " " + ed + "]";
+		String sd = "";
+		String ed = "";
+		if (startDate != null) {
+			sd = "from=" + format.format(startDate);
+		}
+		if (endDate != null) {
+			ed = "to=" + format.format(endDate);
+		}
+		return "DateRangeX [" + sd + " " + ed + "]";
 	}
 
 }
