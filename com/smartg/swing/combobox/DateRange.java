@@ -1,5 +1,6 @@
 package com.smartg.swing.combobox;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -9,6 +10,8 @@ public class DateRange implements DateRangeChecker {
 
 	private boolean includeRangeStart;
 	private boolean includeRangeEnd;
+        
+        private DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT);
 
 	public DateRange() {
 
@@ -108,7 +111,15 @@ public class DateRange implements DateRangeChecker {
 
 	@Override
 	public String toString() {
-		return "DateRange [from=" + startDate + ", to=" + endDate + "]";
+            String sd = "";
+            String ed = "";
+            if(startDate != null) {
+               sd = "from=" + format.format(startDate);
+            }
+            if(endDate != null) {
+               ed = "to=" + format.format(endDate);
+            }
+		return "DateRange [" + sd + " " + ed + "]";
 	}
 
 }
