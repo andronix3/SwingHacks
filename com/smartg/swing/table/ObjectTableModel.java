@@ -10,8 +10,10 @@ import com.smartg.java.util.StackTraceUtil;
 import java.util.Objects;
 
 /**
- * Each row in this table model represents an Object of specified type. To make
- * this usable we have to implement setValueAt and getValueAt methods.
+ * Each row in this table model represents an Object of specified type.
+ * Extending classes should implement setValueAt and getValueAt methods.
+ * Moreover after creating ObjectTableModel three things must be done: set
+ * column names, set column classes and set column editability.
  *
  * @author User
  * @param <T>
@@ -173,10 +175,10 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-    	if(types != null) {
-    		return types[columnIndex];
-    	}
-    	return super.getColumnClass(columnIndex);
+        if (types != null) {
+            return types[columnIndex];
+        }
+        return super.getColumnClass(columnIndex);
     }
 
     @Override
@@ -189,10 +191,10 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
 
     @Override
     public String getColumnName(int col) {
-    	if(columnNames != null) {
-    		return columnNames[col];
-    	}
-    	return super.getColumnName(col);
+        if (columnNames != null) {
+            return columnNames[col];
+        }
+        return super.getColumnName(col);
     }
 
     @Override
