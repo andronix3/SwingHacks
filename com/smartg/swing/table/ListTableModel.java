@@ -1,5 +1,6 @@
 package com.smartg.swing.table;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("rawtypes")
@@ -8,7 +9,16 @@ public class ListTableModel extends ObjectTableModel<List> {
 	private static final long serialVersionUID = 5339647716413344918L;
 
 	public ListTableModel() {
-		super(List.class);
+		super(ArrayList.class);
+	}
+
+	@Override
+	protected List initRow(List row) {
+		int columnCount = getColumnCount();
+		for(int i = 0; i < columnCount; i++) {
+			row.add(null);
+		}
+		return row;
 	}
 
 	@Override
