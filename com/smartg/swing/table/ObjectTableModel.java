@@ -28,6 +28,7 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
     private Class[] types;
     private Boolean[] editable;
     private final Class<? extends T> classe;
+    private boolean doNotFireTableEvents;
 
     public ObjectTableModel(Class<? extends T> classe) {
         this.classe = classe;
@@ -100,12 +101,20 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
 
     public void addRow(T row) {
         data.add(row);
-        fireTableRowsInserted(data.size() - 1, data.size() - 1);
+        if (!doNotFireTableEvents) {
+            fireTableRowsInserted(data.size() - 1, data.size() - 1);
+        }
     }
 
     public void addRow(int index, T row) {
         data.add(index, row);
-        fireTableRowsInserted(data.size() - 1, data.size() - 1);
+        if (!doNotFireTableEvents) {
+            fireTableRowsInserted(data.size() - 1, data.size() - 1);
+        }
+    }
+
+    protected void setDoNotFireTableEvents(boolean doNotFireTableEvents) {
+        this.doNotFireTableEvents = doNotFireTableEvents;
     }
 
     public int indexOf(T row) {
