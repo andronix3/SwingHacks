@@ -3,7 +3,6 @@ package com.smartg.swing.table;
 import java.awt.Component;
 import java.text.ParseException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
@@ -173,8 +172,7 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
                 try {
                     ((JFormattedTextField) textField).commitEdit();
                 } catch (ParseException e) {
-                    Logger.getLogger(getClass().getName()).log(Level.WARNING,
-                            e.getMessage() + " at " + StackTraceUtil.getStackTraceLine(e));
+                	StackTraceUtil.log(Level.WARNING, e.getMessage());
                 }
                 Object value = ((JFormattedTextField) textField).getValue();
                 if (value != null) {
