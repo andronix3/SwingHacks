@@ -99,6 +99,7 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
             }
         }
         this.button.setVisible(showButton(table, value, isSelected, row, column));
+        this.textField.setEditable(getTextFieldEditable(table, value, isSelected, row, column));
         if (isUseValueForButton(table, value, isSelected, row, column)) {
             this.textField.setVisible(false);
             this.button.setText(string);
@@ -145,6 +146,9 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
     protected Icon getButtonIcon() {
         return null;
     }
+    
+    protected abstract boolean getTextFieldEditable(JTable table, Object value, boolean isSelected, int row,
+            int column);
 
     protected abstract boolean showButton(JTable table, Object value, boolean isSelected, int row,
             int column);

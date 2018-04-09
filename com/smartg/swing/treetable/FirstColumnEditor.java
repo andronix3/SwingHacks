@@ -74,4 +74,9 @@ public class FirstColumnEditor extends TableCellEditorWithButton {
 		return !model.isLeaf(row);
 	}
 
+	@Override
+	protected boolean getTextFieldEditable(JTable table, Object value, boolean isSelected, int row, int column) {
+		return false;
+	}
+
 }
