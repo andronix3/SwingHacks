@@ -8,6 +8,7 @@ import javax.swing.table.AbstractTableModel;
 
 import com.smartg.java.util.StackTraceUtil;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Each row in this table model represents an Object of specified type.

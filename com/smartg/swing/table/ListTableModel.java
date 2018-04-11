@@ -12,6 +12,7 @@ public class ListTableModel extends ObjectTableModel<List> {
 		super(ArrayList.class);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected List initRow(List row) {
 		int columnCount = getColumnCount();
