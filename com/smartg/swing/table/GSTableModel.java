@@ -48,12 +48,12 @@ public class GSTableModel<T> extends ObjectTableModel<T> {
     }
 
 	@SuppressWarnings("rawtypes")
-	public void setGetters(Getter... getters) {
+	public void setGetters(Getter<T>... getters) {
 		this.getters = Objects.requireNonNull(getters);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void setSetters(Setter... setters) {
+	public void setSetters(Setter<T>... setters) {
 		this.setters = Objects.requireNonNull(setters);
 	}
 }
