@@ -1,5 +1,5 @@
 package com.smartg.swing.table;
 
 public interface Getter<T> {
-	public T get(Object row);
+	public Object get(T row);
 }
