@@ -53,7 +53,7 @@ public class GSTableModel<T> extends ObjectTableModel<T> {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void setSetters(Setter<T>... setters) {
+	public void setSetters(Setter<T, ?>... setters) {
 		this.setters = Objects.requireNonNull(setters);
 	}
 }

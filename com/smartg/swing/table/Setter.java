@@ -1,5 +1,5 @@
 package com.smartg.swing.table;
 
-public interface Setter<T> {
-	void set(Object o, T row);
+public interface Setter<T,N> {
+	void set(N o, T row);
 }
