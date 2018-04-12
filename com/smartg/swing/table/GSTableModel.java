@@ -17,7 +17,7 @@ public class GSTableModel<T> extends ObjectTableModel<T> {
 		super(classe);
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		if(getters == null || getters.length == 0) {
@@ -47,12 +47,12 @@ public class GSTableModel<T> extends ObjectTableModel<T> {
 		}
     }
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "unchecked" })
 	public void setGetters(Getter<T>... getters) {
 		this.getters = Objects.requireNonNull(getters);
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "unchecked" })
 	public void setSetters(Setter<T, ?>... setters) {
 		this.setters = Objects.requireNonNull(setters);
 	}
