@@ -1,9 +1,9 @@
 package com.smartg.swing.table;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
@@ -13,6 +13,7 @@ import javax.swing.InputMap;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.table.TableCellEditor;
 import javax.swing.text.JTextComponent;
 
 public class TableEditOnTypeDecorator {
@@ -52,7 +53,7 @@ public class TableEditOnTypeDecorator {
 		inputMap.put(ks, name);
 		actionMap.put(name, new StartEditAction("" + c));
 	}
-	
+
 	private static class FocusLostHandler extends FocusAdapter {
 
 		@Override
@@ -60,7 +61,7 @@ public class TableEditOnTypeDecorator {
 			e.getComponent().removeFocusListener(this);
 			JTextComponent tc = (JTextComponent) e.getComponent();
 			tc.putClientProperty("ExcludeTextFieldSelectAll", null);
-		}		
+		}
 	}
 
 	private class StartEditAction extends AbstractAction {
@@ -83,13 +84,17 @@ public class TableEditOnTypeDecorator {
 			int selectedRow = table.getSelectedRow();
 			if (selectedRow >= 0 && selectedColumn >= 0 && table.isCellEditable(selectedRow, selectedColumn)) {
 				if (table.editCellAt(selectedRow, selectedColumn)) {
-					DefaultCellEditor cellEditor = (DefaultCellEditor) table.getCellEditor();
-					JTextComponent component = (JTextComponent) cellEditor.getComponent();
-					component.putClientProperty("ExcludeTextFieldSelectAll", Boolean.TRUE);
-					component.addFocusListener(focusLostHandler);
-					SwingUtilities.invokeLater(() -> {
-						component.setText(action);
-					});
+					TableCellEditor editor = table.getCellEditor();
+					DefaultCellEditor cellEditor = (DefaultCellEditor) editor;
+					Component editorComponent = cellEditor.getComponent();
+					if (editorComponent instanceof JTextComponent) {
+						JTextComponent component = (JTextComponent) editorComponent;
+						component.putClientProperty("ExcludeTextFieldSelectAll", Boolean.TRUE);
+						component.addFocusListener(focusLostHandler);
+						SwingUtilities.invokeLater(() -> {
+							component.setText(action);
+						});
+					}
 				}
 			}
 			// }
