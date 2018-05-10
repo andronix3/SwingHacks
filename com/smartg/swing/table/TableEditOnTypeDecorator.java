@@ -45,6 +45,19 @@ public class TableEditOnTypeDecorator {
 			registerAction(i, Character.toLowerCase((char) i), 0);
 			registerAction(i, Character.toUpperCase((char) i), KeyEvent.SHIFT_DOWN_MASK);
 		}
+
+		InputMap map = table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+		map.put(enterKey, "Action.enter");
+		actionMap.put("Action.enter", new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Action.enter");
+			}
+		});
+
 	}
 
 	private void registerAction(int vk, char c, int modifiers) {
@@ -85,15 +98,17 @@ public class TableEditOnTypeDecorator {
 			if (selectedRow >= 0 && selectedColumn >= 0 && table.isCellEditable(selectedRow, selectedColumn)) {
 				if (table.editCellAt(selectedRow, selectedColumn)) {
 					TableCellEditor editor = table.getCellEditor();
-					DefaultCellEditor cellEditor = (DefaultCellEditor) editor;
-					Component editorComponent = cellEditor.getComponent();
-					if (editorComponent instanceof JTextComponent) {
-						JTextComponent component = (JTextComponent) editorComponent;
-						component.putClientProperty("ExcludeTextFieldSelectAll", Boolean.TRUE);
-						component.addFocusListener(focusLostHandler);
-						SwingUtilities.invokeLater(() -> {
-							component.setText(action);
-						});
+					if (editor instanceof DefaultCellEditor) {
+						DefaultCellEditor cellEditor = (DefaultCellEditor) editor;
+						Component editorComponent = cellEditor.getComponent();
+						if (editorComponent instanceof JTextComponent) {
+							JTextComponent component = (JTextComponent) editorComponent;
+							component.putClientProperty("ExcludeTextFieldSelectAll", Boolean.TRUE);
+							component.addFocusListener(focusLostHandler);
+							SwingUtilities.invokeLater(() -> {
+								component.setText(action);
+							});
+						}
 					}
 				}
 			}

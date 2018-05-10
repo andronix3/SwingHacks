@@ -37,7 +37,7 @@ import javax.swing.event.ListSelectionListener;
 
 import com.smartg.swing.FixedListModel;
 
-public class GCalendarPanel extends GComboBoxEditorPanel<String> {
+public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 
 	private static final long serialVersionUID = -8617553669929693130L;
 

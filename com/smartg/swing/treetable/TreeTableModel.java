@@ -1,5 +1,6 @@
 package com.smartg.swing.treetable;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.swing.Icon;
 import javax.swing.JTable;
@@ -17,7 +19,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import com.smartg.swing.table.TableCellRendererColorSupplier;
+import com.smartg.swing.table.CellRendererParams;
 
 public class TreeTableModel extends AbstractTableModel {
 
@@ -306,8 +308,8 @@ public class TreeTableModel extends AbstractTableModel {
 	public void installFirstColumnRenderer(final Builder builder) {
 		FirstColumnRenderer cellRenderer = new FirstColumnRenderer(this, builder.renderer, builder.collapsedIcon,
 				builder.expandedIcon, builder.align);
-		if (builder.backgroundColorSupplier != null) {
-			cellRenderer.setBackgroundcolorSupplier(builder.backgroundColorSupplier);
+		if (builder.backgroundColor != null) {
+			cellRenderer.getFunctionFactory().setBackgroundcolor(builder.backgroundColor);
 		}
 		builder.table.getColumnModel().getColumn(0).setCellRenderer(cellRenderer);
 
@@ -335,7 +337,7 @@ public class TreeTableModel extends AbstractTableModel {
 		private Icon collapsedIcon = HandleIcon.getCollapsedImage();
 		private Icon expandedIcon = HandleIcon.getExpandedImage();
 		private int align = SwingUtilities.LEFT;
-		private TableCellRendererColorSupplier backgroundColorSupplier;
+		private Function<CellRendererParams, Color> backgroundColor;
 
 		public JTable getTable() {
 			return table;
@@ -382,12 +384,12 @@ public class TreeTableModel extends AbstractTableModel {
 			return this;
 		}
 
-		public TableCellRendererColorSupplier getBackgroundColorSupplier() {
-			return backgroundColorSupplier;
+		public Function<CellRendererParams, Color> getBackgroundColor() {
+			return backgroundColor;
 		}
 
-		public Builder setBackgroundColorSupplier(TableCellRendererColorSupplier backgroundColorSupplier) {
-			this.backgroundColorSupplier = backgroundColorSupplier;
+		public Builder setBackgroundColor(Function<CellRendererParams, Color> f) {
+			this.backgroundColor = f;
 			return this;
 		}
 	}

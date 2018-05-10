@@ -113,8 +113,8 @@ public class CardSelector extends GComboBox2D_DataEditor<String> {
 		range.setIncludeRangeStart(true);
 		
 		calendarPanel.addHighlightRange(range, Color.GRAY);
-		calendarPanel.setCellSize(50);
-		calendarPanel.setDateChangeAllowed(false);
+		calendarPanel.setCellSize(20);
+		calendarPanel.setDateChangeAllowed(true);
 		calendarPanel.select(end);
 		
 		frame.add(new GComboBox<String>(ctrl));

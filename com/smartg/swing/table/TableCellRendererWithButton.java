@@ -3,7 +3,6 @@ package com.smartg.swing.table;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.util.Objects;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -20,25 +19,14 @@ import com.smartg.swing.layout.LayoutNode;
 import com.smartg.swing.layout.NodeAlignment;
 import com.smartg.swing.layout.NodeConstraints;
 
-public abstract class TableCellRendererWithButton implements TableCellRenderer {
+public class TableCellRendererWithButton implements TableCellRenderer {
 
 	private final JComponent panel = new JLabel();
 	private final StealthButton button = new StealthButton();
-	private boolean buttonContentAreaFilled = true;
-	private boolean buttonBorderPainted = true;
 	private TableCellRenderer renderer;
 	private final JComponent rendererPanel = new Box(BoxLayout.LINE_AXIS);
-	private boolean useValueForButton;
-	private TableCellRendererColorSupplier backgroundcolorSupplier = new TableCellRendererColorSupplier() {
-		@Override
-		public Color getColor(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			if (isSelected) {
-				return table.getSelectionBackground();
-			} else {
-				return table.getBackground();
-			}
-		}
-	};
+
+	private final RendererFunctionFactory functionFactory = new RendererFunctionFactory();
 
 	public TableCellRendererWithButton(TableCellRenderer renderer) {
 		this(renderer, 4);
@@ -76,27 +64,31 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
+
+		CellRendererParams params = new CellRendererParams().setTable(table).setValue(value).setSelected(isSelected)
+				.setHasFocus(hasFocus).setRow(row).setColumn(column);
+
 		String string = "";
 		if (value != null) {
 			string = value.toString();
 		}
-		this.button.setContentAreaFilled(isButtonContentAreaFilled());
-		this.button.setBorderPainted(isButtonBorderPainted());
+		this.button.setContentAreaFilled(isButtonContentAreaFilled(params));
+		this.button.setBorderPainted(isButtonBorderPainted(params));
 
-		Icon buttonIcon = getButtonIcon();
+		Icon buttonIcon = getButtonIcon(params);
 		if (buttonIcon != null) {
 			this.button.setIcon(buttonIcon);
 		} else {
-			String buttonText = getButtonText();
+			String buttonText = getButtonText(params);
 			if ((buttonText != null) && (!buttonText.isEmpty())) {
 				this.button.setText(buttonText);
 			} else {
 				this.button.setText("...");
 			}
 		}
-		this.button.setStealthMode(!showButton(table, string, isSelected, hasFocus, row, column));
+		this.button.setStealthMode(!showButton(params));
 		JLabel comp;
-		if (isUseValueForButton(table, value, isSelected, row, column)) {
+		if (isUseValueForButton(params)) {
 			comp = (JLabel) this.renderer.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
 			this.button.setText(string);
 			comp.setVisible(false);
@@ -110,7 +102,7 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 
 		comp.setOpaque(true);
 
-		Color bg = getBackgroundColor(table, value, isSelected, hasFocus, row, column);
+		Color bg = getBackgroundColor(params);
 		this.panel.setBackground(bg);
 		comp.setBackground(bg);
 		this.rendererPanel.setBackground(bg);
@@ -120,56 +112,40 @@ public abstract class TableCellRendererWithButton implements TableCellRenderer {
 		return this.panel;
 	}
 
-	public TableCellRendererColorSupplier getBackgroundcolorSupplier() {
-		return backgroundcolorSupplier;
+	public Color getBackgroundColor(CellRendererParams t) {
+		return this.functionFactory.getBackgroundcolor().apply(t);
 	}
 
-	public void setBackgroundcolorSupplier(TableCellRendererColorSupplier backgroundcolorSupplier) {
-		this.backgroundcolorSupplier = Objects.requireNonNull(backgroundcolorSupplier);
+	public boolean isUseValueForButton(CellRendererParams t) {
+		return this.functionFactory.getUseValueForButton().apply(t);
 	}
 
-	public Color getBackgroundColor(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
-			int column) {
-		return backgroundcolorSupplier.getColor(table, value, isSelected, hasFocus, row, column);
+	public String getButtonText(CellRendererParams t) {
+		return this.functionFactory.getButtonText().apply(t);
 	}
 
-	public boolean isUseValueForButton(JTable table, Object value, boolean isSelected, int row, int column) {
-		return this.useValueForButton;
+	public Icon getButtonIcon(CellRendererParams t) {
+		return this.functionFactory.getButtonIcon().apply(t);
 	}
 
-	public void setUseValueForButton(boolean useValueForButton) {
-		this.useValueForButton = useValueForButton;
+	public boolean isButtonContentAreaFilled(CellRendererParams t) {
+		return this.functionFactory.getButtonContentAreaFilled().apply(t);
 	}
 
-	protected String getButtonText() {
-		return null;
+	public boolean isButtonBorderPainted(CellRendererParams t) {
+		return this.functionFactory.getButtonBorderPainted().apply(t);
 	}
 
-	protected Icon getButtonIcon() {
-		return null;
+	public boolean showButton(CellRendererParams t) {
+		return this.functionFactory.getShowButton().apply(t);
 	}
-
-	public boolean isButtonContentAreaFilled() {
-		return this.buttonContentAreaFilled;
-	}
-
-	public boolean isButtonBorderPainted() {
-		return this.buttonBorderPainted;
-	}
-
-	public void setButtonContentAreaFilled(boolean buttonContentAreaFilled) {
-		this.buttonContentAreaFilled = buttonContentAreaFilled;
-	}
-
-	public void setButtonBorderPainted(boolean buttonBorderPainted) {
-		this.buttonBorderPainted = buttonBorderPainted;
-	}
-
-	protected abstract boolean showButton(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
-			int col);
 
 	public JButton getButton() {
 		return this.button;
+	}
+
+	public RendererFunctionFactory getFunctionFactory() {
+		return this.functionFactory;
 	}
 
 	static class StealthButton extends NullMarginButton {

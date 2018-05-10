@@ -39,4 +39,10 @@ public class NullMarginButton extends JButton {
     public final void setMargin(Insets m) {
         super.setMargin(MARGIN);
     }
+
+    @Override
+    public Insets getInsets() {
+        return new Insets(0, 0, 0, 0);
+    }
+
 }

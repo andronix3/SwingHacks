@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
@@ -29,6 +30,15 @@ public class FirstColumnEditor extends TableCellEditorWithButton {
 		collapsedIcon = new HandleIcon(collapsedImage);
 		expandedIcon = new HandleIcon(expandedImage);
 		leafIcon = new HandleIcon(new ImageIcon(new BufferedImage(10, 10, 2)));
+		getFunctionFactory().setTextFieldEditable(t-> false);
+		getFunctionFactory().setShowButton(t-> {
+			if (t.getColumn() != 0) {
+				return false;
+			}
+			TreeTableModel m = (TreeTableModel) t.getTable().getModel();
+			return !m.isLeaf(t.getRow());
+		});
+		getFunctionFactory().setButtonIcon(t-> buttonIcon);
 	}
 
 	public void setCollapsedImage(Image img) {
@@ -37,14 +47,6 @@ public class FirstColumnEditor extends TableCellEditorWithButton {
 
 	public void setExpandedImage(Image img) {
 		expandedIcon = ((HandleIcon) Objects.requireNonNull(new HandleIcon(new ImageIcon(img))));
-	}
-
-	protected String getButtonText() {
-		return null;
-	}
-
-	protected Icon getButtonIcon() {
-		return buttonIcon;
 	}
 
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -63,20 +65,6 @@ public class FirstColumnEditor extends TableCellEditorWithButton {
 		}
 
 		return super.getTableCellEditorComponent(table, value, isSelected, row, column);
-	}
-
-	@Override
-	protected boolean showButton(JTable table, Object value, boolean isSelected, int row, int column) {
-		if (column != 0) {
-			return false;
-		}
-		TreeTableModel model = (TreeTableModel) table.getModel();
-		return !model.isLeaf(row);
-	}
-
-	@Override
-	protected boolean getTextFieldEditable(JTable table, Object value, boolean isSelected, int row, int column) {
-		return false;
 	}
 
 }

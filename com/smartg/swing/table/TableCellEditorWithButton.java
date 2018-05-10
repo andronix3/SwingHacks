@@ -1,5 +1,6 @@
 package com.smartg.swing.table;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.text.ParseException;
 import java.util.logging.Level;
@@ -8,29 +9,26 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import com.smartg.java.util.StackTraceUtil;
 import com.smartg.swing.NullMarginButton;
-import com.smartg.swing.layout.JNodeLayout;
-import com.smartg.swing.layout.LayoutNode;
+import com.smartg.swing.layout.GridPanel;
 import com.smartg.swing.layout.NodeAlignment;
-import com.smartg.swing.layout.NodeConstraints;
 
-public abstract class TableCellEditorWithButton extends DefaultCellEditor {
+public class TableCellEditorWithButton extends DefaultCellEditor {
 
     private static final long serialVersionUID = 9197754785781921417L;
-    private JPanel panel = new JPanel();
+    private GridPanel panel = new GridPanel(10);
     private JButton button = new NullMarginButton();
     private JTextField textField;
-    private boolean buttonContentAreaFilled = true;
-    private boolean buttonBorderPainted = true;
-    private boolean useValueForButton;
+    
+	private final RendererFunctionFactory functionFactory = new RendererFunctionFactory();
 
     public TableCellEditorWithButton(JTextField textField) {
-        this(textField, 4);
+        this(textField, SwingConstants.RIGHT);
     }
 
     public TableCellEditorWithButton(JTextField textField, int buttonAlignment) {
@@ -41,32 +39,16 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
         super(textField);
         this.textField = textField;
         textField.setEditable(editable);
-        LayoutNode.HorizontalNode root = new LayoutNode.HorizontalNode("root");
-        JNodeLayout layout = new JNodeLayout(this.panel, root);
+        panel.setHgap(0);
+        panel.setVgap(0);
+        panel.add(textField, 9);
+        panel.add(button, 1);
+        panel.setHorizontalAlignment(NodeAlignment.STRETCHED);
 
-        this.panel.setLayout(layout);
-        if (buttonAlignment == 4) {
-            this.panel.add(textField, new NodeConstraints("root"));
-            LayoutNode.HorizontalNode buttonNode = new LayoutNode.HorizontalNode("button");
-            buttonNode.setHorizontalAlignment(NodeAlignment.RIGHT);
-            root.add(buttonNode);
-            this.panel.add(this.button, new NodeConstraints("button"));
+//        LayoutNode.GridNode root = (LayoutNode.GridNode) panel.getLayout().getRoot();
+        //root.setMaxCellWidth(9, 50);
 
-            root.setHorizontalAlignment(NodeAlignment.RIGHT);
-            layout.setHorizontalAlignment(textField, NodeAlignment.RIGHT);
-            layout.setHorizontalAlignment(this.button, NodeAlignment.RIGHT);
-        } else {
-            LayoutNode.HorizontalNode buttonNode = new LayoutNode.HorizontalNode("button");
-            buttonNode.setHorizontalAlignment(NodeAlignment.LEFT);
-            root.add(buttonNode);
-            this.panel.add(this.button, new NodeConstraints("button"));
-            this.panel.add(textField, new NodeConstraints("root"));
-
-            root.setHorizontalAlignment(NodeAlignment.LEFT);
-            layout.setHorizontalAlignment(textField, NodeAlignment.LEFT);
-            layout.setHorizontalAlignment(this.button, NodeAlignment.LEFT);
-        }
-        textField.setHorizontalAlignment(4);
+        textField.setHorizontalAlignment(SwingConstants.LEFT);
 
         this.editorComponent = this.panel;
         this.delegate = new MyEditorDelegate(textField);
@@ -83,24 +65,28 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         this.delegate.setValue(value);
         String string = String.valueOf(value);
+        
+		CellRendererParams params = new CellRendererParams().setTable(table).setValue(value).setSelected(isSelected)
+				.setHasFocus(true).setRow(row).setColumn(column);
 
-        this.button.setContentAreaFilled(isButtonContentAreaFilled());
-        this.button.setBorderPainted(isButtonBorderPainted());
 
-        Icon buttonIcon = getButtonIcon();
+        this.button.setContentAreaFilled(isButtonContentAreaFilled(params));
+        this.button.setBorderPainted(isButtonBorderPainted(params));
+
+        Icon buttonIcon = getButtonIcon(params);
         if (buttonIcon != null) {
             this.button.setIcon(buttonIcon);
         } else {
-            String buttonText = getButtonText();
+            String buttonText = getButtonText(params);
             if ((buttonText != null) && (!buttonText.isEmpty())) {
                 this.button.setText(buttonText);
             } else {
                 this.button.setText("...");
             }
         }
-        this.button.setVisible(showButton(table, value, isSelected, row, column));
-        this.textField.setEditable(getTextFieldEditable(table, value, isSelected, row, column));
-        if (isUseValueForButton(table, value, isSelected, row, column)) {
+        this.button.setVisible(showButton(params));
+        this.textField.setEditable(getTextFieldEditable(params));
+        if (isUseValueForButton(params)) {
             this.textField.setVisible(false);
             this.button.setText(string);
         } else {
@@ -115,43 +101,41 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
         return this.panel;
     }
 
-    public boolean isUseValueForButton(JTable table, Object value, boolean isSelected, int row, int column) {
-        return this.useValueForButton;
-    }
+	public RendererFunctionFactory getFunctionFactory() {
+		return functionFactory;
+	}
 
-    public void setUseValueForButton(boolean useValueForButton) {
-        this.useValueForButton = useValueForButton;
-    }
+	public Color getBackgroundColor(CellRendererParams t) {
+		return this.functionFactory.getBackgroundcolor().apply(t);
+	}
 
-    public boolean isButtonContentAreaFilled() {
-        return this.buttonContentAreaFilled;
-    }
+	public boolean isUseValueForButton(CellRendererParams t) {
+		return this.functionFactory.getUseValueForButton().apply(t);
+	}
 
-    public boolean isButtonBorderPainted() {
-        return this.buttonBorderPainted;
-    }
+	public String getButtonText(CellRendererParams t) {
+		return this.functionFactory.getButtonText().apply(t);
+	}
 
-    public void setButtonContentAreaFilled(boolean buttonContentAreaFilled) {
-        this.buttonContentAreaFilled = buttonContentAreaFilled;
-    }
+	public Icon getButtonIcon(CellRendererParams t) {
+		return this.functionFactory.getButtonIcon().apply(t);
+	}
 
-    public void setButtonBorderPainted(boolean buttonBorderPainted) {
-        this.buttonBorderPainted = buttonBorderPainted;
-    }
+	public boolean isButtonContentAreaFilled(CellRendererParams t) {
+		return this.functionFactory.getButtonContentAreaFilled().apply(t);
+	}
 
-    protected String getButtonText() {
-        return null;
-    }
+	public boolean isButtonBorderPainted(CellRendererParams t) {
+		return this.functionFactory.getButtonBorderPainted().apply(t);
+	}
 
-    protected Icon getButtonIcon() {
-        return null;
-    }
-    
-    protected abstract boolean getTextFieldEditable(JTable table, Object value, boolean isSelected, int row,
-            int column);
+	public boolean showButton(CellRendererParams t) {
+		return this.functionFactory.getShowButton().apply(t);
+	}
 
-    protected abstract boolean showButton(JTable table, Object value, boolean isSelected, int row,
-            int column);
+    public boolean getTextFieldEditable(CellRendererParams t) {
+    	return this.functionFactory.getTextFieldEditable().apply(t);
+    }
 
     public JButton getButton() {
         return this.button;
@@ -187,5 +171,4 @@ public abstract class TableCellEditorWithButton extends DefaultCellEditor {
             return textField.getText();
         }
     }
-
 }

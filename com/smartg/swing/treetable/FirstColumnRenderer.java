@@ -31,8 +31,14 @@ public class FirstColumnRenderer extends TableCellRendererWithButton {
         collapsedIcon = new HandleIcon(collapsedImage);
         expandedIcon = new HandleIcon(expandedImage);
         leafIcon = new HandleIcon(new ImageIcon(new BufferedImage(10, 10, 2)));
-        setButtonContentAreaFilled(false);
-        setButtonBorderPainted(false);
+        getFunctionFactory().setButtonContentAreaFilled(t->false);
+        getFunctionFactory().setButtonBorderPainted(t->false);
+        getFunctionFactory().setShowButton(t->{
+        	if (t.getColumn() != 0) {
+                return false;
+            }
+            return !model.isLeaf(t.getRow());
+        });
     }
 
     public void setCollapsedImage(Image img) {
@@ -69,14 +75,4 @@ public class FirstColumnRenderer extends TableCellRendererWithButton {
 
         return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
     }
-
-    @Override
-    protected boolean showButton(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-        if (col != 0) {
-            return false;
-        }
-        //TreeTableModel model = (TreeTableModel) table.getModel();
-        return !model.isLeaf(row);
-    }
-
 }
