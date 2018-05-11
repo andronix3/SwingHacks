@@ -48,14 +48,15 @@ public class GComboBoxEditorListPanel<E> extends GComboBoxEditorPanel<E> {
 				fireChange();
 			}
 		});
+		
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				list.clearSelection();
-				if (e.getClickCount() >= clickCount) {
-					finishEdit();
-					fireChange();
-				}
+//				if (e.getClickCount() >= clickCount) {
+//					finishEdit();
+//					fireChange();
+//				}
 			}
 		});
 

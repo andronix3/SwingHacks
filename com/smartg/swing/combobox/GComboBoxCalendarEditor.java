@@ -13,8 +13,8 @@ import javax.swing.ListCellRenderer;
 @SuppressWarnings("rawtypes")
 public class GComboBoxCalendarEditor extends GComboBoxEditor {
 
-	DateFormat format = DateFormat.getDateInstance();
-	Renderer renderer = new Renderer();
+	private DateFormat format = DateFormat.getDateInstance();
+	DateRenderer renderer = new DateRenderer();
 
 	@SuppressWarnings("unchecked")
 	public GComboBoxCalendarEditor() {
@@ -44,7 +44,7 @@ public class GComboBoxCalendarEditor extends GComboBoxEditor {
 		return null;
 	}
 
-	class Renderer extends DefaultListCellRenderer {
+	class DateRenderer extends DefaultListCellRenderer {
 
 		private static final long serialVersionUID = 5036330073179253078L;
 

@@ -9,75 +9,83 @@ import com.smartg.java.util.AddToList;
 
 public abstract class GComboBoxEditor<E> {
 
-	private boolean finished;
-	private int clickCount = 1;
+    private boolean finished;
+    private int clickCount = 1;
 
-	private EventListenerList listenerList = new EventListenerList();
+    private E value;
 
-	protected GComboBoxEditorPanel<E> component;
+    private EventListenerList listenerList = new EventListenerList();
 
-	public GComboBoxEditor(GComboBoxEditorPanel<E> comp) {
-		this.component = comp;
-		comp.addActionListener(e-> {
-			switch(e.getActionCommand()) {
-			case "finishEdit":
-				finishEdit();
-				break;
-			case "fireChange":
-				fireChangeEvent();
-				break;
-			}
-		});
-	}
+    protected GComboBoxEditorPanel<E> component;
 
-	public abstract E getValue();
+    public GComboBoxEditor(GComboBoxEditorPanel<E> comp) {
+        this.component = comp;
+        comp.addActionListener(e -> {
+            switch (e.getActionCommand()) {
+                case "finishEdit":
+                    finishEdit();
+                    break;
+                case "fireChange":
+                    fireChangeEvent();
+                    break;
+            }
+        });
+    }
 
-	public abstract ListCellRenderer<E> getRenderer();
+    public E getValue() {
+        return value;
+    }
 
-	public GComboBoxEditorPanel<E> getComponent() {
-		return component;
-	}
+    public void setValue(E value) {
+        this.value = value;
+    }
 
-	public final boolean editFinished() {
-		return finished;
-	}
+    public abstract ListCellRenderer<E> getRenderer();
 
-	public int getClickCount() {
-		return clickCount;
-	}
+    public GComboBoxEditorPanel<E> getComponent() {
+        return component;
+    }
 
-	public void setClickCount(int clickCount) {
-		this.clickCount = clickCount;
-	}
+    public final boolean editFinished() {
+        return finished;
+    }
 
-	public void addChangeListener(ChangeListener e) {
-		new AddToList(listenerList).add(ChangeListener.class, e);
-	}
+    public int getClickCount() {
+        return clickCount;
+    }
 
-	public void removeChangeListener(ChangeListener e) {
-		listenerList.remove(ChangeListener.class, e);
-	}
+    public void setClickCount(int clickCount) {
+        this.clickCount = clickCount;
+    }
 
-	private void fireChangeEvent() {
-		ChangeListener[] listeners = listenerList.getListeners(ChangeListener.class);
-		ChangeEvent e = new ChangeEvent(this);
-		for (int i = 0; i < listeners.length; i++) {
-			listeners[i].stateChanged(e);
-		}
-	}
+    public void addChangeListener(ChangeListener e) {
+        new AddToList(listenerList).add(ChangeListener.class, e);
+    }
 
-	/**
-	 * Should be called by implementing classes to indicate that Editor can be
-	 * closed. Moreover ChangeEvent must be fired after finishEdit() to close
-	 * GComboBox popup.
-	 * 
-	 * @return
-	 */
-	protected void finishEdit() {
-		finished = true;
-	}
+    public void removeChangeListener(ChangeListener e) {
+        listenerList.remove(ChangeListener.class, e);
+    }
 
-	final void startEdit() {
-		finished = false;
-	}
+    private void fireChangeEvent() {
+        ChangeListener[] listeners = listenerList.getListeners(ChangeListener.class);
+        ChangeEvent e = new ChangeEvent(this);
+        for (int i = 0; i < listeners.length; i++) {
+            listeners[i].stateChanged(e);
+        }
+    }
+
+    /**
+     * Should be called by implementing classes to indicate that Editor can be
+     * closed. Moreover ChangeEvent must be fired after finishEdit() to close
+     * GComboBox popup.
+     *
+     * @return
+     */
+    protected void finishEdit() {
+        finished = true;
+    }
+
+    final void startEdit() {
+        finished = false;
+    }
 }
