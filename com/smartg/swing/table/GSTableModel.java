@@ -32,6 +32,7 @@ public class GSTableModel<T> extends ObjectTableModel<T> {
 		return null;
 	}
 	
+        @Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		if(setters == null || setters.length == 0) {

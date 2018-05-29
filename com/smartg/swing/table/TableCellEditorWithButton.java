@@ -20,86 +20,90 @@ import com.smartg.swing.layout.NodeAlignment;
 
 public class TableCellEditorWithButton extends DefaultCellEditor {
 
-    private static final long serialVersionUID = 9197754785781921417L;
-    private GridPanel panel = new GridPanel(10);
-    private JButton button = new NullMarginButton();
-    private JTextField textField;
-    
+	private static final long serialVersionUID = 9197754785781921417L;
+	private GridPanel panel = new GridPanel(10);
+	private JButton button = new NullMarginButton();
+	private JTextField textField;
+
 	private final RendererFunctionFactory functionFactory = new RendererFunctionFactory();
 
-    public TableCellEditorWithButton(JTextField textField) {
-        this(textField, SwingConstants.RIGHT);
-    }
+	public TableCellEditorWithButton(JTextField textField) {
+		this(textField, SwingConstants.RIGHT);
+	}
 
-    public TableCellEditorWithButton(JTextField textField, int buttonAlignment) {
-        this(textField, buttonAlignment, false);
-    }
+	public TableCellEditorWithButton(JTextField textField, int buttonAlignment) {
+		this(textField, buttonAlignment, false);
+	}
 
-    public TableCellEditorWithButton(JTextField textField, int buttonAlignment, boolean editable) {
-        super(textField);
-        this.textField = textField;
-        textField.setEditable(editable);
-        panel.setHgap(0);
-        panel.setVgap(0);
-        panel.add(textField, 9);
-        panel.add(button, 1);
-        panel.setHorizontalAlignment(NodeAlignment.STRETCHED);
+	public TableCellEditorWithButton(JTextField textField, int buttonAlignment, boolean editable) {
+		super(textField);
+		this.textField = textField;
+		textField.setEditable(editable);
+		panel.setHgap(0);
+		panel.setVgap(0);
+		if (buttonAlignment == SwingConstants.RIGHT) {
+			panel.add(textField, 8);
+			panel.add(button, 2);
+		} else {
+			panel.add(button, 2);
+			panel.add(textField, 8);
+		}
+		panel.setHorizontalAlignment(NodeAlignment.STRETCHED);
 
-//        LayoutNode.GridNode root = (LayoutNode.GridNode) panel.getLayout().getRoot();
-        //root.setMaxCellWidth(9, 50);
+		// LayoutNode.GridNode root = (LayoutNode.GridNode) panel.getLayout().getRoot();
+		// root.setMaxCellWidth(9, 50);
 
-        textField.setHorizontalAlignment(SwingConstants.LEFT);
+		textField.setHorizontalAlignment(SwingConstants.LEFT);
 
-        this.editorComponent = this.panel;
-        this.delegate = new MyEditorDelegate(textField);
+		this.editorComponent = this.panel;
+		this.delegate = new MyEditorDelegate(textField);
 
-        this.button.addActionListener(this.delegate);
-        this.button.setRequestFocusEnabled(false);
+		this.button.addActionListener(this.delegate);
+		this.button.setRequestFocusEnabled(false);
 
-        setClickCountToStart(1);		
+		setClickCountToStart(1);
 
-        //textField.addFocusListener(new TableCellEditorWithButton.2(this, textField));
-    }
+		// textField.addFocusListener(new TableCellEditorWithButton.2(this, textField));
+	}
 
-    @Override
+	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        this.delegate.setValue(value);
-        String string = String.valueOf(value);
-        
+		this.delegate.setValue(value);
+		String string = String.valueOf(value);
+
 		CellRendererParams params = new CellRendererParams().setTable(table).setValue(value).setSelected(isSelected)
 				.setHasFocus(true).setRow(row).setColumn(column);
 
+		this.button.setContentAreaFilled(isButtonContentAreaFilled(params));
+		this.button.setBorderPainted(isButtonBorderPainted(params));
 
-        this.button.setContentAreaFilled(isButtonContentAreaFilled(params));
-        this.button.setBorderPainted(isButtonBorderPainted(params));
-
-        Icon buttonIcon = getButtonIcon(params);
-        if (buttonIcon != null) {
-            this.button.setIcon(buttonIcon);
-        } else {
-            String buttonText = getButtonText(params);
-            if ((buttonText != null) && (!buttonText.isEmpty())) {
-                this.button.setText(buttonText);
-            } else {
-                this.button.setText("...");
-            }
-        }
-        this.button.setVisible(showButton(params));
-        this.textField.setEditable(getTextFieldEditable(params));
-        if (isUseValueForButton(params)) {
-            this.textField.setVisible(false);
-            this.button.setText(string);
-        } else {
-            this.textField.setText(string);
-            this.textField.setVisible(true);
-        }
-        if (isSelected) {
-            this.panel.setBackground(table.getSelectionBackground());
-        } else {
-            this.panel.setBackground(table.getBackground());
-        }
-        return this.panel;
-    }
+		Icon buttonIcon = getButtonIcon(params);
+		if (buttonIcon != null) {
+			this.button.setIcon(buttonIcon);
+		} else {
+			String buttonText = getButtonText(params);
+			if ((buttonText != null) && (!buttonText.isEmpty())) {
+				this.button.setText(buttonText);
+			} else {
+				this.button.setText("...");
+			}
+		}
+		this.button.setVisible(showButton(params));
+		this.textField.setEditable(getTextFieldEditable(params));
+		if (isUseValueForButton(params)) {
+			this.textField.setVisible(false);
+			this.button.setText(string);
+		} else {
+			this.textField.setText(string);
+			this.textField.setVisible(true);
+		}
+		if (isSelected) {
+			this.panel.setBackground(table.getSelectionBackground());
+		} else {
+			this.panel.setBackground(table.getBackground());
+		}
+		return this.panel;
+	}
 
 	public RendererFunctionFactory getFunctionFactory() {
 		return functionFactory;
@@ -133,42 +137,42 @@ public class TableCellEditorWithButton extends DefaultCellEditor {
 		return this.functionFactory.getShowButton().apply(t);
 	}
 
-    public boolean getTextFieldEditable(CellRendererParams t) {
-    	return this.functionFactory.getTextFieldEditable().apply(t);
-    }
+	public boolean getTextFieldEditable(CellRendererParams t) {
+		return this.functionFactory.getTextFieldEditable().apply(t);
+	}
 
-    public JButton getButton() {
-        return this.button;
-    }
+	public JButton getButton() {
+		return this.button;
+	}
 
-    class MyEditorDelegate extends DefaultCellEditor.EditorDelegate {
+	class MyEditorDelegate extends DefaultCellEditor.EditorDelegate {
 
-        private static final long serialVersionUID = 7028332554446975905L;
+		private static final long serialVersionUID = 7028332554446975905L;
 
-        MyEditorDelegate(JTextField textField) {
-            value = textField;
-        }
+		MyEditorDelegate(JTextField textField) {
+			value = textField;
+		}
 
-        @Override
+		@Override
 		public void setValue(Object value) {
-            textField.setText(value != null ? value.toString() : "");
-        }
+			textField.setText(value != null ? value.toString() : "");
+		}
 
-        @Override
+		@Override
 		public Object getCellEditorValue() {
-            if ((textField instanceof JFormattedTextField)) {
-                try {
-                    ((JFormattedTextField) textField).commitEdit();
-                } catch (ParseException e) {
-                	StackTraceUtil.log(Level.WARNING, e.getMessage());
-                }
-                Object value = ((JFormattedTextField) textField).getValue();
-                if (value != null) {
-                    return value;
-                }
-                return "";
-            }
-            return textField.getText();
-        }
-    }
+			if ((textField instanceof JFormattedTextField)) {
+				try {
+					((JFormattedTextField) textField).commitEdit();
+				} catch (ParseException e) {
+					StackTraceUtil.log(Level.WARNING, e.getMessage());
+				}
+				Object value = ((JFormattedTextField) textField).getValue();
+				if (value != null) {
+					return value;
+				}
+				return "";
+			}
+			return textField.getText();
+		}
+	}
 }
