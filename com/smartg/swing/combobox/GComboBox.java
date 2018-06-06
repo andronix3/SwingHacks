@@ -29,7 +29,7 @@ public class GComboBox<E> extends JComboBox<E> {
         public void actionPerformed(ActionEvent e) {
             try {
                 hidePopup();
-                pmenu.show(GComboBox.this, 0, getHeight());
+                showPopup();
             } catch (Throwable t) {
                 //ignore
             }
@@ -37,12 +37,15 @@ public class GComboBox<E> extends JComboBox<E> {
     });
 
     private JPopupMenu pmenu = new JPopupMenu();
+    
+    public void showPopup() {
+        pmenu.show(GComboBox.this, 0, getHeight());
+    }
 
     public GComboBox(GComboBoxEditor<E> ctrl) {
         setModel(model);
         this.comboBoxEditor = ctrl;
         model.setValue(comboBoxEditor.getValue());
-        cpanel = comboBoxEditor.getComponent();
         setRenderer(comboBoxEditor.getRenderer());
         comboBoxEditor.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
@@ -55,6 +58,7 @@ public class GComboBox<E> extends JComboBox<E> {
             }
         });
 
+        cpanel = comboBoxEditor.getComponent();
         pmenu.add(cpanel);
 
         addPopupMenuListener(new PopupMenuListener() {
