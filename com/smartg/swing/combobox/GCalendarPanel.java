@@ -31,7 +31,6 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -48,8 +47,6 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 		calendar.set(Calendar.DAY_OF_MONTH, day);
 		return calendar;
 	}
-
-	protected EventListenerList listenerList = new EventListenerList();
 
 	static class CalendarFacade {
 		private final int year;
@@ -85,9 +82,7 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 				return false;
 			if (month != other.month)
 				return false;
-			if (year != other.year)
-				return false;
-			return true;
+			return year == other.year;
 		}
 
 		@Override
@@ -100,7 +95,7 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 	private Set<CalendarFacade> selection = new HashSet<>();
 
 	private String[] days = new String[7];
-	private JList<String> cdays = new JList<String>(days);
+	private JList<String> cdays = new JList<>(days);
 	private JLabel current = new JLabel();
 	private Calendar date = Calendar.getInstance();
 
@@ -132,7 +127,7 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 
 		t.setInitialDelay(500);
 
-		FixedListModel<String> model = new FixedListModel<String>(values);
+		FixedListModel<String> model = new FixedListModel<>(values);
 		list.setModel(model);
 
 		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
@@ -150,7 +145,7 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 		cdays.setFixedCellHeight(30);
 		cdays.setFixedCellWidth(30);
 
-		CellRenderers.Selection_ListCellRenderer<String> cr2 = new CellRenderers.Selection_ListCellRenderer<String>();
+		CellRenderers.Selection_ListCellRenderer<String> cr2 = new CellRenderers.Selection_ListCellRenderer<>();
 		cr2.renderer.setHorizontalAlignment(SwingConstants.CENTER);
 		cdays.setCellRenderer(cr2);
 
@@ -177,6 +172,7 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 		nextMonth.addMouseListener(new NextMonthListener());
 
 		list.addListSelectionListener(new ListSelectionListener() {
+                        @Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (ignoreValueChanged) {
 					return;
@@ -207,10 +203,10 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 		topBox.add(nextYear);
 		topBox.add(Box.createHorizontalStrut(5));
 
-		setLayout(new BorderLayout());
+		super.setLayout(new BorderLayout());
 
-		add(topBox, BorderLayout.NORTH);
-		add(middlePanel);
+		super.add(topBox, BorderLayout.NORTH);
+		super.add(middlePanel);
 		middlePanel.add(list);
 		middlePanel.add(cdays, BorderLayout.NORTH);
 	}
@@ -274,6 +270,7 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 		return date.get(Calendar.YEAR);
 	}
 
+        @Override
 	public boolean isCellSelected(int x, int y) {
 		int index = y * getHorizontalCellCount() + x;
 		String elem = list.getModel().getElementAt(index);
@@ -323,7 +320,7 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		CalendarFacade e = new CalendarFacade(calendar);
-		System.out.println("select=" + e);
+		//System.out.println("select=" + e);
 		selection.add(e);
 	}
 
@@ -333,7 +330,7 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 		cdays.setFixedCellWidth(size);
 	}
 
-	public void setDate(Date date) {
+	public final void setDate(Date date) {
 		this.date.setTime(date);
 		this.calendar.setTime(date);
 		updateValues();
@@ -359,6 +356,7 @@ public class GCalendarPanel extends GComboBoxEditorListPanel<String> {
 		}
 	}
 
+        @Override
 	protected Color getCellBackground(int x, int y, boolean selected) {
 		int index = 7 * y + x;
 		String s = list.getModel().getElementAt(index);

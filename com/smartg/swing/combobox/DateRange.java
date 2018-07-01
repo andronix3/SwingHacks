@@ -5,121 +5,122 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class DateRange implements DateRangeChecker {
-	private Date startDate;
-	private Date endDate;
 
-	private boolean includeRangeStart;
-	private boolean includeRangeEnd;
+    private Date startDate;
+    private Date endDate;
 
-	private DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT);
+    private boolean includeRangeStart;
+    private boolean includeRangeEnd;
 
-	public DateRange() {
+    private final DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT);
 
-	}
+    public DateRange() {
 
-	public DateRange(Date from, Date to) {
-		this.startDate = from;
-		this.endDate = to;
-	}
+    }
 
-	public Date getStartDate() {
-		return startDate;
-	}
+    public DateRange(Date from, Date to) {
+        this.startDate = from;
+        this.endDate = to;
+    }
 
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
+    public Date getStartDate() {
+        return startDate;
+    }
 
-	public Date getEndDate() {
-		return endDate;
-	}
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
 
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
+    public Date getEndDate() {
+        return endDate;
+    }
 
-	public boolean isIncludeRangeStart() {
-		return includeRangeStart;
-	}
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
 
-	public void setIncludeRangeStart(boolean includeRangeStart) {
-		this.includeRangeStart = includeRangeStart;
-	}
+    public boolean isIncludeRangeStart() {
+        return includeRangeStart;
+    }
 
-	public boolean isIncludeRangeEnd() {
-		return includeRangeEnd;
-	}
+    public void setIncludeRangeStart(boolean includeRangeStart) {
+        this.includeRangeStart = includeRangeStart;
+    }
 
-	public void setIncludeRangeEnd(boolean includeRangeEnd) {
-		this.includeRangeEnd = includeRangeEnd;
-	}
+    public boolean isIncludeRangeEnd() {
+        return includeRangeEnd;
+    }
 
-	/*
+    public void setIncludeRangeEnd(boolean includeRangeEnd) {
+        this.includeRangeEnd = includeRangeEnd;
+    }
+
+    /*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.smartg.swing.combobox.DateRangeChecker#inRange(int, int, int)
-	 */
-	@Override
-	public boolean inRange(int year, int month, int dayOfMonth) {
-		Calendar c = Calendar.getInstance();
-		c.set(Calendar.YEAR, year);
-		c.set(Calendar.MONTH, month);
-		c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-		return inRange(c);
-	}
+     */
+    @Override
+    public boolean inRange(int year, int month, int dayOfMonth) {
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, year);
+        c.set(Calendar.MONTH, month);
+        c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        return inRange(c);
+    }
 
-	/*
+    /*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.smartg.swing.combobox.DateRangeChecker#inRange(java.util.Calendar)
-	 */
-	@Override
-	public boolean inRange(Calendar c) {
-		return inRange(c.getTime());
-	}
+     */
+    @Override
+    public boolean inRange(Calendar c) {
+        return inRange(c.getTime());
+    }
 
-	/*
+    /*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.smartg.swing.combobox.DateRangeChecker#inRange(java.util.Date)
-	 */
-	@Override
-	public boolean inRange(Date time) {
-		if (startDate == null && endDate == null) {
-			return false;
-		}
-		if (startDate == null) {
-			return beforeOrEquals(time, endDate);
-		}
-		if (endDate == null) {
-			return afterOrEquals(time, startDate);
-		}
-		return betweenOrEquals(time);
-	}
+     */
+    @Override
+    public boolean inRange(Date time) {
+        if (startDate == null && endDate == null) {
+            return false;
+        }
+        if (startDate == null) {
+            return beforeOrEquals(time, endDate);
+        }
+        if (endDate == null) {
+            return afterOrEquals(time, startDate);
+        }
+        return betweenOrEquals(time);
+    }
 
-	public boolean betweenOrEquals(Date time) {
-		return beforeOrEquals(time, endDate) && afterOrEquals(time, startDate);
-	}
+    public boolean betweenOrEquals(Date time) {
+        return beforeOrEquals(time, endDate) && afterOrEquals(time, startDate);
+    }
 
-	private boolean afterOrEquals(Date time, Date startDate) {
-		return time.after(startDate) || (includeRangeStart && time.equals(startDate));
-	}
+    private boolean afterOrEquals(Date time, Date startDate) {
+        return time.after(startDate) || (includeRangeStart && time.equals(startDate));
+    }
 
-	private boolean beforeOrEquals(Date time, Date endDate) {
-		return time.before(endDate) || (includeRangeEnd && time.equals(endDate));
-	}
+    private boolean beforeOrEquals(Date time, Date endDate) {
+        return time.before(endDate) || (includeRangeEnd && time.equals(endDate));
+    }
 
-	@Override
-	public String toString() {
-		String sd = "";
-		String ed = "";
-		if (startDate != null) {
-			sd = "from=" + format.format(startDate);
-		}
-		if (endDate != null) {
-			ed = "to=" + format.format(endDate);
-		}
-		return "DateRangeX [" + sd + " " + ed + "]";
-	}
+    @Override
+    public String toString() {
+        String sd = "";
+        String ed = "";
+        if (startDate != null) {
+            sd = "from=" + format.format(startDate);
+        }
+        if (endDate != null) {
+            ed = "to=" + format.format(endDate);
+        }
+        return "DateRangeX [" + sd + " " + ed + "]";
+    }
 
 }

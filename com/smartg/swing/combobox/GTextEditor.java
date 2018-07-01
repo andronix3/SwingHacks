@@ -11,9 +11,14 @@ public class GTextEditor extends GComboBoxEditor {
         super(ep);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
     public ListCellRenderer getRenderer() {
         return renderer;
+    }
+
+    @Override
+    public GTextEditorPanel getComponent() {
+        return (GTextEditorPanel) super.getComponent();
     }
 }
