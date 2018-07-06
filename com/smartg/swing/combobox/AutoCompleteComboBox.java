@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -12,8 +14,11 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.ComboPopup;
 
 /**
  * This JComboBox implementation will filter list values as you type. Attention!
@@ -28,174 +33,184 @@ import javax.swing.UIManager;
  */
 public class AutoCompleteComboBox<E> extends JComboBox<E> {
 
-    private static final long serialVersionUID = -8403430376204294634L;
+	private static final long serialVersionUID = -8403430376204294634L;
 
-    private boolean ignoreAction;
+	private boolean ignoreAction;
 
-    /**
-     * We have to intercept ActionEvents, so we make our own list.
-     */
-    private List<ActionListener> actionListeners = new ArrayList<>();
+	/**
+	 * We have to intercept ActionEvents, so we make our own list.
+	 */
+	private List<ActionListener> actionListeners = new ArrayList<>();
 
-    /**
-     * This model contains all elements, the original model - only filtered
-     * elements.
-     */
-    private DefaultComboBoxModel<E> model;
+	/**
+	 * This model contains all elements, the original model - only filtered
+	 * elements.
+	 */
+	private DefaultComboBoxModel<E> model;
 
-    public AutoCompleteComboBox() {
-        this(new DefaultComboBoxModel<E>());
-    }
+	public AutoCompleteComboBox() {
+		this(new DefaultComboBoxModel<E>());
+	}
 
-    public AutoCompleteComboBox(E[] items) {
-        this(new DefaultComboBoxModel<>(items));
-    }
+	public AutoCompleteComboBox(E[] items) {
+		this(new DefaultComboBoxModel<>(items));
+	}
 
-    public AutoCompleteComboBox(Vector<E> items) {
-        this(new DefaultComboBoxModel<>(items));
-    }
+	public AutoCompleteComboBox(Vector<E> items) {
+		this(new DefaultComboBoxModel<>(items));
+	}
 
-    public AutoCompleteComboBox(ComboBoxModel<E> aModel) {
-        super(aModel);
-        this.model = new DefaultComboBoxModel<>();
-        int size = aModel.getSize();
-        for (int i = 0; i < size; i++) {
-            this.model.addElement(aModel.getElementAt(i));
-        }
-        setEditable(true);
-        UIManager.put("ComboBox.noActionOnKeyNavigation", true);
+	public AutoCompleteComboBox(ComboBoxModel<E> aModel) {
+		super(aModel);
+		this.model = new DefaultComboBoxModel<>();
+		int size = aModel.getSize();
+		for (int i = 0; i < size; i++) {
+			this.model.addElement(aModel.getElementAt(i));
+		}
+		setEditable(true);
+		UIManager.put("ComboBox.noActionOnKeyNavigation", true);
 
-        super.addActionListener(new ActionHandler());
-        getEditor().getEditorComponent().addKeyListener(new KeyHandler());
-    }
+		super.addActionListener(new ActionHandler());
+		getEditor().getEditorComponent().addKeyListener(new KeyHandler());
 
-    @Override
-    public void setSelectedItem(Object anObject) {
-        if (!isPopupVisible()) {
-            super.setSelectedItem(anObject);
-        }
-    }
+		BasicComboBoxUI ui = (BasicComboBoxUI) getUI();
+		ComboPopup popup = (ComboPopup) ui.getAccessibleChild(this, 0);
+		JList<?> list = popup.getList();
+		list.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				setSelectedIndex(list.getSelectedIndex());
+			}
+		});
+	}
 
-    @Override
-    public void addActionListener(ActionListener l) {
-        if (!actionListeners.contains(l)) {
-            actionListeners.add(l);
-        }
-    }
+	@Override
+	public void setSelectedItem(Object anObject) {
+		if (!isPopupVisible()) {
+			super.setSelectedItem(anObject);
+		}
+	}
 
-    @Override
-    public void removeActionListener(ActionListener l) {
-        actionListeners.remove(l);
-    }
+	@Override
+	public void addActionListener(ActionListener l) {
+		if (!actionListeners.contains(l)) {
+			actionListeners.add(l);
+		}
+	}
 
-    private void fireActionEvent(ActionEvent e) {
-        for (ActionListener l : actionListeners) {
-            l.actionPerformed(e);
-        }
-    }
+	@Override
+	public void removeActionListener(ActionListener l) {
+		actionListeners.remove(l);
+	}
 
-    @Override
-    public void addItem(E item) {
-        super.addItem(item);
-        this.model.addElement(item);
-    }
+	private void fireActionEvent(ActionEvent e) {
+		for (ActionListener l : actionListeners) {
+			l.actionPerformed(e);
+		}
+	}
 
-    @Override
-    public void removeItem(Object anObject) {
-        super.removeItem(anObject);
-        this.model.removeElement(anObject);
-    }
+	@Override
+	public void addItem(E item) {
+		super.addItem(item);
+		this.model.addElement(item);
+	}
 
-    @Override
-    public void removeItemAt(int anIndex) {
-        super.removeItemAt(anIndex);
-        this.model.removeElementAt(anIndex);
-    }
+	@Override
+	public void removeItem(Object anObject) {
+		super.removeItem(anObject);
+		this.model.removeElement(anObject);
+	}
 
-    @Override
-    public void removeAllItems() {
-        super.removeAllItems();
-        this.model.removeAllElements();
-    }
+	@Override
+	public void removeItemAt(int anIndex) {
+		super.removeItemAt(anIndex);
+		this.model.removeElementAt(anIndex);
+	}
 
-    protected void filterValues(String text) {
-        String s = text.toLowerCase();
-        ignoreAction = true;
-        DefaultComboBoxModel<E> superModel = (DefaultComboBoxModel<E>) getModel();
-        superModel.removeAllElements();
-        int size = model.getSize();
-        for (int i = 0; i < size; i++) {
-            E element = model.getElementAt(i);
-            String t = String.valueOf(element).toLowerCase();
-            if (t.startsWith(s)) {
-                superModel.addElement(element);
-            }
-        }
-        ignoreAction = false;
-    }
+	@Override
+	public void removeAllItems() {
+		super.removeAllItems();
+		this.model.removeAllElements();
+	}
 
-    /**
-     * During the original ComboBoxModel is filled with values, JComboBox fires
-     * ActionEvents, which we intercept here.
-     *
-     * @author andro
-     *
-     */
-    private final class ActionHandler implements ActionListener {
+	protected void filterValues(String text) {
+		String s = text.toLowerCase();
+		ignoreAction = true;
+		DefaultComboBoxModel<E> superModel = (DefaultComboBoxModel<E>) getModel();
+		superModel.removeAllElements();
+		int size = model.getSize();
+		for (int i = 0; i < size; i++) {
+			E element = model.getElementAt(i);
+			String t = String.valueOf(element).toLowerCase();
+			if (t.startsWith(s)) {
+				superModel.addElement(element);
+			}
+		}
+		ignoreAction = false;
+	}
 
-        @Override
+	/**
+	 * During the original ComboBoxModel is filled with values, JComboBox fires
+	 * ActionEvents, which we intercept here.
+	 *
+	 * @author andro
+	 *
+	 */
+	private final class ActionHandler implements ActionListener {
+
+		@Override
 		public void actionPerformed(ActionEvent e) {
-            if (!ignoreAction) {
-                fireActionEvent(e);
-            }
-        }
-    }
+			if (!ignoreAction) {
+				fireActionEvent(e);
+			}
+		}
+	}
 
-    private final class KeyHandler extends KeyAdapter {
+	private final class KeyHandler extends KeyAdapter {
 
-        private String value = "";
+		private String value = "";
 
-        @Override
-        public void keyReleased(KeyEvent e) {
-            int keyCode = e.getKeyCode();
-            if (keyCode == KeyEvent.VK_ENTER) {
-                Object selectedItem = getSelectedItem();
-                if (selectedItem != null) {
-                    String entry = selectedItem.toString();
-                    fireActionEvent(new ActionEvent(AutoCompleteComboBox.this, ActionEvent.ACTION_PERFORMED, entry));
-                }
-                return;
-            }
-            JTextField editor = (JTextField) getEditor().getEditorComponent();
-            String text = editor.getText();
-            if (text.equalsIgnoreCase(value)) {
-                return;
-            }
-            value = text;
-            filterValues(text);
-            setPopupVisible(true);
-            ((JTextField) getEditor().getEditorComponent()).setText(text);
-        }
-    }
+		@Override
+		public void keyReleased(KeyEvent e) {
+			int keyCode = e.getKeyCode();
+			if (keyCode == KeyEvent.VK_ENTER) {
+				Object selectedItem = getSelectedItem();
+				if (selectedItem != null) {
+					String entry = selectedItem.toString();
+					fireActionEvent(new ActionEvent(AutoCompleteComboBox.this, ActionEvent.ACTION_PERFORMED, entry));
+				}
+				return;
+			}
+			JTextField editor = (JTextField) getEditor().getEditorComponent();
+			String text = editor.getText();
+			if (text.equalsIgnoreCase(value)) {
+				return;
+			}
+			value = text;
+			filterValues(text);
+			setPopupVisible(true);
+			((JTextField) getEditor().getEditorComponent()).setText(text);
+		}
+	}
 
-    public static void main(String[] args) {
-        String[] values = {"Contact", "Company", "User", "UserGroup", "GroupAssign", "Campaignee", "Template",
-            "CampaignStep", "MtgLead", "Lead", "Stage", "StageMove", "Status", "ProductInterest",
-            "ProductInterestBundle", "SubscriptionPlan", "CProgram", "ProductCategoryAssign", "Product",
-            "ProductOption", "ProductOptValue", "ProductCategory", "CreditCard", "RecurringOrder",
-            "RecurringOrderWithContact", "ContactGroupAssign", "ContactGroup", "ContactGroupCategory", "LeadSource",
-            "LeadSourceCategory", "Campaign", "Invoice", "Affiliate", "AffResource", "Referral", "InvoiceItem",
-            "InvoicePayment", "PayPlan", "PayPlanItem", "Payment", "CCharge", "Job", "JobRecurringInstance",
-            "OrderItem", "ActionSequence", "ContactAction", "Ticket", "TicketStage", "TicketType", "DataFormTab",
-            "DataFormGroup", "DataFormField", "Expense", "LeadSourceExpense", "LeadSourceRecurringExpense",
-            "FileBox", "SavedFilter",};
+	public static void main(String[] args) {
+		String[] values = { "Contact", "Company", "User", "UserGroup", "GroupAssign", "Campaignee", "Template",
+				"CampaignStep", "MtgLead", "Lead", "Stage", "StageMove", "Status", "ProductInterest",
+				"ProductInterestBundle", "SubscriptionPlan", "CProgram", "ProductCategoryAssign", "Product",
+				"ProductOption", "ProductOptValue", "ProductCategory", "CreditCard", "RecurringOrder",
+				"RecurringOrderWithContact", "ContactGroupAssign", "ContactGroup", "ContactGroupCategory", "LeadSource",
+				"LeadSourceCategory", "Campaign", "Invoice", "Affiliate", "AffResource", "Referral", "InvoiceItem",
+				"InvoicePayment", "PayPlan", "PayPlanItem", "Payment", "CCharge", "Job", "JobRecurringInstance",
+				"OrderItem", "ActionSequence", "ContactAction", "Ticket", "TicketStage", "TicketType", "DataFormTab",
+				"DataFormGroup", "DataFormField", "Expense", "LeadSourceExpense", "LeadSourceRecurringExpense",
+				"FileBox", "SavedFilter", };
 
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        AutoCompleteComboBox<String> comboBox = new AutoCompleteComboBox<>(values);
-        frame.getContentPane().add(comboBox);
-        frame.pack();
-        frame.setVisible(true);
-    }
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		AutoCompleteComboBox<String> comboBox = new AutoCompleteComboBox<>(values);
+		frame.getContentPane().add(comboBox);
+		frame.pack();
+		frame.setVisible(true);
+	}
 
 }
