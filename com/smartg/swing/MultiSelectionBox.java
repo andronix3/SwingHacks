@@ -38,6 +38,7 @@ import javax.swing.event.AncestorListener;
 import javax.swing.plaf.ComboBoxUI;
 
 import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
+import com.smartg.java.util.StackTraceUtil;
 
 /**
  * 
@@ -77,8 +78,7 @@ public class MultiSelectionBox<T> extends JPanel {
 		}
 	    });
 	} catch (NoSuchFieldException | IllegalAccessException ex) {
-	    java.util.logging.Logger.getLogger(MultiSelectionBox.class.getName()).log(java.util.logging.Level.WARNING,
-		    ex.getMessage(), ex);
+	           StackTraceUtil.warning(ex);
 	}
 
 	list.addMouseListener(new MouseAdapter() {
