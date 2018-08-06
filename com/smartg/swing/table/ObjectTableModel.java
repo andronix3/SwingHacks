@@ -83,8 +83,7 @@ public abstract class ObjectTableModel<T> extends AbstractTableModel {
      */
     public T addRow() {
         T row = initRow(createRow());
-        data.add(row);
-        fireTableDataChanged();
+        addRow(row);
         return row;
     }
 
