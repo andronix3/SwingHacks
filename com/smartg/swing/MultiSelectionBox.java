@@ -51,12 +51,12 @@ import com.smartg.java.util.StackTraceUtil;
  */
 public class MultiSelectionBox<T> extends JPanel {
 
-    public static <T> void init(JScrollPane jsp, JComboBox<T> box, JList<T> list, ListCellRenderer<T> renderer,
-	    List<T> elements, List<T> selectedItems) {
-	XListModel<T> boxModel = new XListModel<>();
+    public static <T> void init(JScrollPane jsp, final JComboBox<T> box, final JList<T> list, ListCellRenderer<T> renderer,
+	    List<T> elements, final List<T> selectedItems) {
+	final XListModel<T> boxModel = new XListModel<>();
 	box.setModel(boxModel);
 
-	XListModel<T> listModel = new XListModel<>();
+	final XListModel<T> listModel = new XListModel<>();
 	list.setModel(listModel);
 
 	if (renderer != null) {
@@ -151,7 +151,7 @@ public class MultiSelectionBox<T> extends JPanel {
 	add(viewport);
 
 	try {
-	    JList<T> list = getListFromComboBox(comboBox);
+	    final JList<T> list = getListFromComboBox(comboBox);
 
 	    list.addMouseListener(new MouseAdapter() {
 		@Override
@@ -200,8 +200,8 @@ public class MultiSelectionBox<T> extends JPanel {
 	comboBox.addItem(item);
     }
 
-    private JLabel createLabel(T item) {
-	JLabel label = new JLabel(String.valueOf(item), closeIcon, SwingConstants.LEADING);
+    private JLabel createLabel(final T item) {
+	final JLabel label = new JLabel(String.valueOf(item), closeIcon, SwingConstants.LEADING);
 	label.setHorizontalTextPosition(SwingConstants.LEFT);
 	label.setBorder(labelBorder);
 	label.setVisible(false);
